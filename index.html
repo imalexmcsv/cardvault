@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARD VAULT — Colección de Cartas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0c;
+  --bg2: #111118;
+  --bg3: #1a1a24;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --text: #e8e4d9;
+  --text2: #9a9080;
+  --red: #c23b3b;
+  --accent: #7c5cbf;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background: radial-gradient(ellipse at 20% 20%, rgba(124,92,191,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.04) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+
+/* HEADER */
+header {
+  position:sticky; top:0; z-index:10;
+  padding:1.5rem 2.5rem;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:1rem;
+  background:rgba(10,10,12,0.95);
+  backdrop-filter:blur(20px);
+}
+.logo {
+  font-family:'Cinzel',serif;
+  font-size:1.8rem; font-weight:900;
+  letter-spacing:0.15em; color:var(--gold);
+  text-shadow:0 0 40px rgba(201,168,76,0.3);
+}
+.logo span { color:var(--text2); font-weight:400; font-size:0.9rem; display:block; letter-spacing:0.3em; margin-top:-2px; }
+.stats-bar { display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; }
+.stat { text-align:center; }
+.stat-num { font-family:'Cinzel',serif; font-size:1.4rem; color:var(--gold); display:block; }
+.stat-label { font-size:0.65rem; color:var(--text2); letter-spacing:0.2em; text-transform:uppercase; }
+
+/* BUTTONS */
+.btn {
+  background:var(--gold); color:#1a1200;
+  border:none; border-radius:6px;
+  padding:0.6rem 1.2rem;
+  font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:700;
+  letter-spacing:0.05em; cursor:pointer;
+  transition:all 0.2s; white-space:nowrap; display:inline-flex; align-items:center; gap:0.4rem;
+}
+.btn:hover { background:var(--gold2); transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-outline { background:transparent; color:var(--text2); border:1px solid var(--border2); }
+.btn-outline:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,0.05); transform:translateY(-1px); }
+.btn-red { background:var(--red); color:white; }
+.btn-red:hover { background:#e04444; }
+
+/* CONTROLS */
+.controls {
+  position:relative; z-index:5;
+  padding:1rem 2.5rem;
+  display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;
+  border-bottom:1px solid var(--border);
+  background:rgba(17,17,24,0.8);
+}
+.search-box {
+  flex:1; min-width:200px;
+  background:var(--bg3); border:1px solid var(--border2); border-radius:6px;
+  padding:0.6rem 1rem; color:var(--text);
+  font-family:'Rajdhani',sans-serif; font-size:1rem; outline:none;
+  transition:border-color 0.2s;
+}
+.search-box:focus { border-color:var(--gold); }
+.search-box::placeholder { color:var(--text2); }
+select {
+  background:var(--bg3); border:1px solid var(--border2); border-radius:6px;
+  padding:0.6rem 1rem; color:var(--text);
+  font-family:'Rajdhani',sans-serif; font-size:0.9rem; outline:none; cursor:pointer;
+}
+select:focus { border-color:var(--gold); }
+.view-toggle { display:flex; background:var(--bg3); border:1px solid var(--border2); border-radius:6px; overflow:hidden; }
+.view-btn { background:none; border:none; color:var(--text2); padding:0.6rem 0.8rem; cursor:pointer; font-size:1rem; transition:all 0.2s; }
+.view-btn.active { background:var(--gold); color:#1a1200; }
+
+/* LAYOUT */
+.layout { display:flex; min-height:calc(100vh - 130px); }
+
+/* SIDEBAR */
+.sidebar {
+  width:220px; min-width:220px;
+  border-right:1px solid var(--border);
+  padding:1.5rem 0;
+  background:rgba(10,10,12,0.6);
+  position:relative; z-index:2;
+  overflow-y:auto;
+}
+.sidebar-title {
+  font-family:'Cinzel',serif; font-size:0.65rem;
+  letter-spacing:0.25em; color:var(--text2); text-transform:uppercase;
+  padding:0 1.2rem 0.8rem; border-bottom:1px solid var(--border); margin-bottom:0.5rem;
+}
+.universe-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.5rem 1.2rem; cursor:pointer;
+  transition:all 0.15s; font-size:0.9rem; color:var(--text2);
+  border-left:2px solid transparent;
+}
+.universe-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
+.universe-item.active { color:var(--gold); border-left-color:var(--gold); background:rgba(201,168,76,0.06); }
+.universe-count {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:10px; padding:1px 7px;
+  font-size:0.72rem; color:var(--text2); font-family:'Cinzel',serif;
+}
+.universe-item.active .universe-count { background:rgba(201,168,76,0.15); border-color:var(--gold); color:var(--gold); }
+
+/* MAIN */
+.main-content { flex:1; padding:1.5rem 2rem; position:relative; z-index:2; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+.section-title { font-family:'Cinzel',serif; font-size:1.2rem; color:var(--gold); letter-spacing:0.1em; }
+.number-badge {
+  display:inline-block;
+  background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3);
+  border-radius:4px; padding:1px 6px;
+  font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold); margin-left:0.5rem;
+}
+
+/* CARDS GRID */
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:1.2rem; }
+.cards-grid.list-view { grid-template-columns:1fr; gap:0.5rem; }
+
+/* CARD ITEM */
+.card-item {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; overflow:hidden; cursor:pointer;
+  transition:all 0.25s; position:relative; aspect-ratio:2/3;
+}
+.cards-grid.list-view .card-item {
+  aspect-ratio:unset; display:flex; align-items:center;
+  gap:1rem; padding:0.7rem 1rem; height:72px;
+}
+.card-item:hover {
+  border-color:var(--gold); transform:translateY(-4px) scale(1.02);
+  box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 20px rgba(201,168,76,0.15);
+  z-index:5;
+}
+.cards-grid.list-view .card-item:hover { transform:translateX(4px); }
+.card-img-wrapper { width:100%; height:100%; position:relative; overflow:hidden; }
+.cards-grid.list-view .card-img-wrapper { width:38px; height:55px; min-width:38px; border-radius:5px; overflow:hidden; }
+.card-img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s; }
+.card-item:hover .card-img { transform:scale(1.05); }
+.card-placeholder {
+  width:100%; height:100%;
+  background:linear-gradient(135deg, var(--bg3) 0%, var(--bg2) 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem;
+}
+.placeholder-icon { font-size:2rem; opacity:0.3; }
+.card-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 45%, transparent 100%);
+  display:flex; flex-direction:column; justify-content:flex-end; padding:0.9rem;
+}
+.cards-grid.list-view .card-overlay { display:none; }
+.card-name-overlay {
+  font-family:'Cinzel',serif; font-size:0.85rem; color:var(--gold2);
+  font-weight:700; line-height:1.3; text-shadow:0 1px 6px rgba(0,0,0,0.9);
+}
+.card-universe-overlay { font-size:0.72rem; color:rgba(255,255,255,0.7); margin-top:3px; text-shadow:0 1px 4px rgba(0,0,0,0.9); }
+.card-number {
+  position:absolute; top:6px; left:6px;
+  background:rgba(0,0,0,0.7); border:1px solid var(--border2);
+  border-radius:4px; padding:1px 5px; font-size:0.6rem; color:var(--gold);
+  font-family:'Cinzel',serif; backdrop-filter:blur(4px);
+}
+.has-reverse-badge {
+  position:absolute; top:6px; right:6px;
+  background:rgba(124,92,191,0.8); border:1px solid rgba(124,92,191,0.6);
+  border-radius:4px; padding:1px 5px; font-size:0.55rem; color:#d4b8ff;
+  backdrop-filter:blur(4px);
+}
+.card-actions {
+  position:absolute; top:6px; right:6px;
+  display:flex; flex-direction:column; gap:4px;
+  opacity:0; transition:opacity 0.2s; z-index:10;
+}
+.card-item:hover .card-actions { opacity:1; }
+.cards-grid.list-view .card-item .card-actions { display:none; }
+.card-action-btn {
+  width:26px; height:26px; border-radius:5px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(0,0,0,0.7); color:white;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:0.75rem; transition:all 0.15s; backdrop-filter:blur(4px);
+}
+.card-action-btn:hover { background:rgba(201,168,76,0.8); border-color:var(--gold); color:#1a1200; }
+.card-action-btn.delete:hover { background:rgba(194,59,59,0.8); border-color:var(--red); }
+.list-info { flex:1; display:none; }
+.cards-grid.list-view .list-info { display:block; }
+.list-name { font-family:'Cinzel',serif; font-size:0.9rem; color:var(--text); font-weight:700; }
+.list-universe { font-size:0.75rem; color:var(--text2); margin-top:2px; }
+.list-actions { display:none; gap:0.4rem; }
+.cards-grid.list-view .list-actions { display:flex; }
+
+/* MODALS */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.85);
+  z-index:100; display:none; align-items:center; justify-content:center;
+  backdrop-filter:blur(8px); padding:1rem;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:14px; max-width:900px; width:100%;
+  max-height:90vh; overflow-y:auto; position:relative;
+}
+.modal-close {
+  position:absolute; top:1rem; right:1rem;
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:6px; width:32px; height:32px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--text2); font-size:1.1rem; transition:all 0.2s; z-index:10;
+}
+.modal-close:hover { background:var(--red); color:white; border-color:var(--red); }
+.modal-header { padding:1.5rem 1.5rem 1rem; border-bottom:1px solid var(--border); }
+.modal-title { font-family:'Cinzel',serif; font-size:1.3rem; color:var(--gold); letter-spacing:0.08em; }
+.modal-subtitle { color:var(--text2); font-size:0.85rem; margin-top:0.3rem; }
+.modal-body { padding:1.5rem; }
+
+/* FORM */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.form-group { display:flex; flex-direction:column; gap:0.4rem; }
+.form-group.full { grid-column:1/-1; }
+.form-label { font-size:0.75rem; color:var(--text2); letter-spacing:0.15em; text-transform:uppercase; }
+.form-input {
+  background:var(--bg3); border:1px solid var(--border2); border-radius:7px;
+  padding:0.7rem 1rem; color:var(--text);
+  font-family:'Rajdhani',sans-serif; font-size:1rem; outline:none;
+  transition:border-color 0.2s; width:100%;
+}
+.form-input:focus { border-color:var(--gold); }
+.form-input::placeholder { color:var(--text2); }
+.upload-area {
+  border:2px dashed var(--border2); border-radius:10px;
+  padding:2rem; text-align:center; cursor:pointer;
+  transition:all 0.2s; position:relative; overflow:hidden;
+}
+.upload-area:hover { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+.upload-area.drag-over { border-color:var(--gold); background:rgba(201,168,76,0.08); }
+.upload-preview { max-height:200px; max-width:100%; border-radius:8px; object-fit:contain; display:none; }
+.upload-icon { font-size:2.5rem; color:var(--text2); margin-bottom:0.5rem; }
+.upload-text { color:var(--text2); font-size:0.9rem; }
+.upload-text strong { color:var(--gold); }
+.upload-input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+/* CARD DETAIL */
+.card-detail-content { display:grid; grid-template-columns:auto 1fr; gap:2rem; align-items:start; }
+.card-detail-images { display:flex; flex-direction:column; gap:0.8rem; align-items:center; }
+.card-detail-img-placeholder {
+  width:220px; aspect-ratio:2/3;
+  background:var(--bg3); border-radius:10px; border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:3rem; color:var(--text2);
+}
+.flip-btn { font-size:0.75rem; padding:0.4rem 0.8rem; }
+.card-detail-info { padding-top:0.5rem; }
+.detail-name { font-family:'Cinzel',serif; font-size:1.8rem; color:var(--gold); font-weight:700; line-height:1.2; margin-bottom:0.4rem; }
+.detail-universe { color:var(--accent); font-size:1rem; letter-spacing:0.1em; margin-bottom:1.5rem; }
+.detail-meta { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1.5rem; }
+.meta-item { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:0.8rem; }
+.meta-label { font-size:0.65rem; color:var(--text2); letter-spacing:0.2em; text-transform:uppercase; }
+.meta-value { font-size:1rem; color:var(--text); margin-top:0.2rem; }
+.detail-notes {
+  background:var(--bg3); border:1px solid var(--border); border-radius:8px;
+  padding:1rem; color:var(--text2); font-size:0.9rem; line-height:1.6; white-space:pre-wrap;
+}
+.detail-actions { display:flex; gap:0.8rem; margin-top:1.5rem; flex-wrap:wrap; }
+
+/* FLIP */
+.card-flip-container { perspective:1000px; width:220px; }
+.card-flip-inner {
+  position:relative; width:100%; aspect-ratio:2/3;
+  transform-style:preserve-3d; transition:transform 0.6s;
+}
+.card-flip-container.flipped .card-flip-inner { transform:rotateY(180deg); }
+.card-face {
+  position:absolute; inset:0; backface-visibility:hidden;
+  border-radius:10px; overflow:hidden; border:1px solid var(--border2);
+}
+.card-face-back { transform:rotateY(180deg); background:var(--bg3); display:flex; align-items:center; justify-content:center; }
+.card-face img { width:100%; height:100%; object-fit:cover; }
+
+/* EMPTY STATE */
+.empty-state { text-align:center; padding:5rem 2rem; color:var(--text2); }
+.empty-icon { font-size:4rem; margin-bottom:1rem; opacity:0.3; }
+.empty-title { font-family:'Cinzel',serif; font-size:1.2rem; color:var(--text2); margin-bottom:0.5rem; }
+
+/* IMPORT AREA */
+.import-area {
+  background:var(--bg3); border:1px solid var(--border2); border-radius:8px;
+  padding:1rem; font-family:monospace; font-size:0.75rem; color:var(--text2);
+  width:100%; min-height:120px; outline:none; resize:vertical;
+}
+.import-area:focus { border-color:var(--gold); }
+
+/* LOADING */
+.loading { display:flex; align-items:center; justify-content:center; padding:4rem; color:var(--text2); font-size:0.9rem; gap:0.8rem; }
+.spinner { width:20px; height:20px; border:2px solid var(--border2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:2rem; right:2rem;
+  background:var(--bg2); border:1px solid var(--gold);
+  border-radius:8px; padding:0.8rem 1.2rem;
+  color:var(--gold); font-size:0.9rem; z-index:200;
+  transform:translateY(100px); opacity:0; transition:all 0.3s; max-width:300px;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.error { border-color:var(--red); color:#ff8080; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--gold); }
+
+/* ADMIN */
+.admin-only { display:none !important; }
+body.is-admin .admin-only { display:inline-flex !important; }
+body.is-admin #admin-lock-btn { background:rgba(201,168,76,0.15); border-color:var(--gold); color:var(--gold); }
+.admin-detail-actions { display:none; }
+body.is-admin .admin-detail-actions { display:flex; gap:0.8rem; flex-wrap:wrap; }
+.admin-inline { display:none !important; }
+body.is-admin .admin-inline { display:inline-flex !important; }
+@keyframes unlockPulse {
+  0% { box-shadow:0 0 0 0 rgba(201,168,76,0.4); }
+  70% { box-shadow:0 0 0 8px rgba(201,168,76,0); }
+  100% { box-shadow:0 0 0 0 rgba(201,168,76,0); }
+}
+body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
+
+/* MUSIC PLAYER */
+.music-player {
+  position:fixed; bottom:1.5rem; left:1.5rem; z-index:50;
+  background:rgba(10,10,12,0.92); border:1px solid var(--border2);
+  border-radius:12px; padding:0.7rem 1rem;
+  display:flex; align-items:center; gap:0.8rem;
+  backdrop-filter:blur(20px); box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  min-width:260px; max-width:320px; transition:all 0.3s;
+}
+.music-player.collapsed {
+  min-width:unset; max-width:unset; padding:0.7rem;
+  border-radius:50%; width:44px; height:44px; justify-content:center;
+}
+.music-player.collapsed .music-info,
+.music-player.collapsed .music-controls,
+.music-player.collapsed .music-vol { display:none; }
+.music-icon { font-size:1.1rem; cursor:pointer; flex-shrink:0; width:28px; text-align:center; transition:transform 0.2s; }
+.music-icon:hover { transform:scale(1.15); }
+.music-info { flex:1; min-width:0; }
+.music-title { font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold); letter-spacing:0.1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.music-subtitle { font-size:0.65rem; color:var(--text2); margin-top:1px; }
+.music-controls { display:flex; align-items:center; gap:0.4rem; }
+.music-btn { background:none; border:none; color:var(--text2); cursor:pointer; font-size:1rem; padding:3px; transition:color 0.2s; line-height:1; }
+.music-btn:hover { color:var(--gold); }
+.vol-slider {
+  -webkit-appearance:none; appearance:none;
+  width:60px; height:3px; background:var(--border2); border-radius:2px; outline:none; cursor:pointer;
+}
+.vol-slider::-webkit-slider-thumb { -webkit-appearance:none; width:10px; height:10px; border-radius:50%; background:var(--gold); cursor:pointer; }
+.music-progress {
+  position:absolute; bottom:0; left:0; height:2px;
+  background:var(--gold); border-radius:0 0 12px 12px; transition:width 1s linear; opacity:0.6;
+}
+
+/* ============================================================
+   ENVELOPE / SOBRE SYSTEM
+   ============================================================ */
+.envelope-overlay {
+  position:fixed; inset:0; z-index:300;
+  background:rgba(0,0,0,0.95);
+  display:none; align-items:center; justify-content:center;
+  flex-direction:column; gap:1.5rem;
+}
+.envelope-overlay.open { display:flex; }
+
+/* Partículas de fondo */
+.envelope-particles {
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+}
+.particle {
+  position:absolute; width:3px; height:3px;
+  background:var(--gold); border-radius:50%; opacity:0;
+  animation:particleFly var(--dur) var(--delay) ease-out forwards;
+}
+@keyframes particleFly {
+  0% { transform:translate(0,0) scale(1); opacity:1; }
+  100% { transform:translate(var(--tx), var(--ty)) scale(0); opacity:0; }
+}
+
+.envelope-hint {
+  font-family:'Cinzel',serif; font-size:0.8rem;
+  color:var(--text2); letter-spacing:0.3em; text-transform:uppercase;
+  animation:fadeInHint 1s ease forwards;
+  z-index:2;
+}
+@keyframes fadeInHint {
+  from { opacity:0; transform:translateY(10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* EL SOBRE */
+.envelope-wrap {
+  position:relative; z-index:2;
+  cursor:pointer;
+  transition:transform 0.2s;
+}
+.envelope-wrap:hover { transform:scale(1.03); }
+.envelope-wrap.opening { cursor:default; pointer-events:none; }
+
+.envelope {
+  width:320px; height:240px;
+  position:relative;
+  filter:drop-shadow(0 20px 60px rgba(201,168,76,0.3));
+  animation:envelopeFloat 3s ease-in-out infinite;
+}
+@keyframes envelopeFloat {
+  0%,100% { transform:translateY(0) rotate(-1deg); }
+  50% { transform:translateY(-12px) rotate(1deg); }
+}
+.envelope-wrap.opening .envelope { animation:none; }
+
+/* Cuerpo del sobre — SVG estilo */
+.env-body {
+  position:absolute; inset:0;
+  background:linear-gradient(160deg, #1a1208 0%, #2a1f08 40%, #1e1608 100%);
+  border-radius:8px;
+  border:2px solid var(--gold);
+  box-shadow: inset 0 0 40px rgba(201,168,76,0.08), 0 0 0 1px rgba(201,168,76,0.15);
+  overflow:hidden;
+}
+.env-body::before {
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(
+    45deg, transparent, transparent 20px,
+    rgba(201,168,76,0.02) 20px, rgba(201,168,76,0.02) 21px
+  );
+}
+
+/* Sello central */
+.env-seal {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%, -50%);
+  width:60px; height:60px;
+  background:radial-gradient(circle, #c9a84c 0%, #8a6520 60%, #5a3e10 100%);
+  border-radius:50%;
+  border:2px solid var(--gold2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem;
+  box-shadow:0 0 20px rgba(201,168,76,0.5), inset 0 0 10px rgba(0,0,0,0.3);
+  transition:all 0.4s;
+  z-index:5;
+}
+.envelope-wrap.opening .env-seal {
+  transform:translate(-50%, -50%) scale(0);
+  opacity:0;
+}
+
+/* Decoración esquinas del sobre */
+.env-corner {
+  position:absolute; width:30px; height:30px;
+  border-color:var(--gold); border-style:solid; opacity:0.5;
+}
+.env-corner.tl { top:8px; left:8px; border-width:2px 0 0 2px; }
+.env-corner.tr { top:8px; right:8px; border-width:2px 2px 0 0; }
+.env-corner.bl { bottom:8px; left:8px; border-width:0 0 2px 2px; }
+.env-corner.br { bottom:8px; right:8px; border-width:0 2px 2px 0; }
+
+/* Texto del sobre */
+.env-label {
+  position:absolute; bottom:18px; left:0; right:0; text-align:center;
+  font-family:'Cinzel',serif; font-size:0.65rem; color:var(--gold);
+  letter-spacing:0.25em; opacity:0.7;
+}
+.env-card-count {
+  position:absolute; top:14px; left:0; right:0; text-align:center;
+  font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold2);
+  letter-spacing:0.15em;
+}
+
+/* SOLAPA del sobre — la parte que se abre */
+.env-flap {
+  position:absolute; top:0; left:0; right:0; height:50%;
+  transform-origin:top center;
+  transition:transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index:6;
+}
+.env-flap-inner {
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, #251a08 0%, #1a1208 100%);
+  border-radius:8px 8px 0 0;
+  border:2px solid var(--gold);
+  border-bottom:none;
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  overflow:hidden;
+}
+.env-flap-inner::after {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(201,168,76,0.08) 0%, transparent 100%);
+}
+.envelope-wrap.opening .env-flap {
+  transform:rotateX(-180deg);
+}
+
+/* CARTA saliendo del sobre */
+.env-card-reveal {
+  position:absolute; top:10px; left:50%;
+  transform:translateX(-50%) translateY(60px);
+  width:140px; aspect-ratio:2/3;
+  border-radius:8px; overflow:hidden;
+  border:2px solid var(--gold);
+  box-shadow:0 0 30px rgba(201,168,76,0.4);
+  opacity:0; z-index:4;
+  transition:transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+}
+.envelope-wrap.card-rising .env-card-reveal {
+  transform:translateX(-50%) translateY(-80px);
+  opacity:1;
+}
+.env-card-reveal img { width:100%; height:100%; object-fit:cover; }
+.env-card-reveal .env-card-placeholder {
+  width:100%; height:100%;
+  background:linear-gradient(135deg, var(--bg3), var(--bg2));
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem;
+}
+
+/* CARD SHOWCASE — la carta grande después del sobre */
+.card-showcase {
+  display:none; flex-direction:column; align-items:center; gap:1.5rem;
+  z-index:2; animation:showcaseIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.card-showcase.visible { display:flex; }
+@keyframes showcaseIn {
+  from { transform:scale(0.5) translateY(40px); opacity:0; }
+  to { transform:scale(1) translateY(0); opacity:1; }
+}
+.showcase-card {
+  width:260px; aspect-ratio:2/3;
+  border-radius:14px; overflow:hidden;
+  border:2px solid var(--gold);
+  box-shadow:0 0 60px rgba(201,168,76,0.5), 0 20px 60px rgba(0,0,0,0.8);
+  position:relative;
+}
+.showcase-card img { width:100%; height:100%; object-fit:cover; }
+.showcase-card-placeholder {
+  width:100%; height:100%;
+  background:linear-gradient(135deg, var(--bg3), var(--bg2));
+  display:flex; align-items:center; justify-content:center; font-size:4rem;
+}
+.showcase-glow {
+  position:absolute; inset:-2px;
+  border-radius:14px;
+  background:linear-gradient(135deg, var(--gold), transparent, var(--gold));
+  opacity:0.3;
+  animation:glowRotate 3s linear infinite;
+  pointer-events:none;
+}
+@keyframes glowRotate {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+.showcase-info { text-align:center; }
+.showcase-name { font-family:'Cinzel',serif; font-size:1.8rem; color:var(--gold); font-weight:900; letter-spacing:0.05em; }
+.showcase-universe { font-size:1rem; color:var(--text2); margin-top:0.3rem; letter-spacing:0.1em; }
+.showcase-new-badge {
+  display:inline-block;
+  background:linear-gradient(135deg, #c9a84c, #8a6520);
+  color:#1a1200; font-family:'Cinzel',serif;
+  font-size:0.7rem; font-weight:700; letter-spacing:0.2em;
+  padding:0.3rem 1rem; border-radius:20px;
+  margin-top:0.8rem;
+  animation:badgePulse 1s ease-in-out infinite alternate;
+}
+@keyframes badgePulse {
+  from { box-shadow:0 0 10px rgba(201,168,76,0.4); }
+  to { box-shadow:0 0 25px rgba(201,168,76,0.8); }
+}
+.showcase-actions { display:flex; gap:1rem; margin-top:0.5rem; flex-wrap:wrap; justify-content:center; }
+
+/* Brillo en la carta showcase */
+.showcase-shine {
+  position:absolute; inset:0; border-radius:14px;
+  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
+  animation:shineMove 2.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes shineMove {
+  0% { transform:translateX(-100%) skewX(-15deg); }
+  100% { transform:translateX(200%) skewX(-15deg); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar { display:none; }
+  .controls { padding:1rem; }
+  .main-content { padding:1rem; }
+  .form-grid { grid-template-columns:1fr; }
+  .card-detail-content { grid-template-columns:1fr; }
+  .card-detail-images { flex-direction:row; }
+  header { padding:1rem; }
+  .logo { font-size:1.3rem; }
+  .envelope { width:260px; height:195px; }
+  .showcase-card { width:200px; }
+  .showcase-name { font-size:1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">CARD VAULT<span>COLECCIÓN PERSONAL</span></div>
+  <div class="stats-bar">
+    <div class="stat"><span class="stat-num" id="total-cards">0</span><span class="stat-label">Cartas</span></div>
+    <div class="stat"><span class="stat-num" id="total-universes">0</span><span class="stat-label">Universos</span></div>
+    <div class="stat"><span class="stat-num" id="with-reverse">0</span><span class="stat-label">Con reverso</span></div>
+    <button class="btn admin-only" onclick="openAddModal()">+ Añadir carta</button>
+    <button class="btn btn-outline admin-only" onclick="openImportModal()">Importar</button>
+    <button class="btn btn-outline" id="admin-lock-btn" onclick="toggleAdminPanel()" title="Administrador" style="padding:0.6rem 0.8rem;font-size:1rem;">🔒</button>
+  </div>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <input type="text" class="search-box" id="search-input" placeholder="Buscar carta por nombre, universo..." oninput="filterCards()">
+  <select id="universe-filter" onchange="filterCards()"><option value="">Todos los universos</option></select>
+  <select id="sort-select" onchange="filterCards()">
+    <option value="date-desc">Más recientes</option>
+    <option value="date-asc">Más antiguas</option>
+    <option value="name-asc">Nombre A-Z</option>
+    <option value="name-desc">Nombre Z-A</option>
+    <option value="universe">Por universo</option>
+    <option value="number">Por número</option>
+  </select>
+  <div class="view-toggle">
+    <button class="view-btn active" id="grid-btn" onclick="setView('grid')" title="Cuadrícula">⊞</button>
+    <button class="view-btn" id="list-btn" onclick="setView('list')" title="Lista">≡</button>
+  </div>
+  <button class="btn btn-outline admin-only" onclick="exportCollection()" style="font-size:0.8rem;">Exportar JSON</button>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-title">Universos</div>
+    <div id="universe-list">
+      <div class="universe-item active" onclick="filterByUniverse('')">
+        Todas las cartas
+        <span class="universe-count" id="all-count">0</span>
+      </div>
+    </div>
+  </nav>
+  <main class="main-content">
+    <div class="section-header">
+      <div>
+        <span class="section-title" id="section-title">Toda la colección</span>
+        <span class="number-badge" id="filtered-count">0</span>
+      </div>
+    </div>
+    <div class="cards-grid" id="cards-grid">
+      <div class="loading"><div class="spinner"></div>Cargando colección...</div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL AÑADIR CARTA -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal" style="max-width:700px;">
+    <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+    <div class="modal-header">
+      <div class="modal-title" id="add-modal-title">Añadir nueva carta</div>
+      <div class="modal-subtitle">Sube la imagen frontal y el reverso de tu carta</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre del personaje *</label>
+          <input type="text" class="form-input" id="card-name" placeholder="Ej: Michael Myers">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Universo / Franquicia *</label>
+          <input type="text" class="form-input" id="card-universe" placeholder="Ej: Halloween" list="universe-suggestions">
+          <datalist id="universe-suggestions"></datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Número de carta</label>
+          <input type="number" class="form-input" id="card-number" placeholder="Ej: 001" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo / Edición <span style="color:var(--text2);font-size:0.75rem;">(opcional)</span></label>
+          <input type="text" class="form-input" id="card-rarity" placeholder="Ej: Edición Especial, Crossover...">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Imagen frontal</label>
+          <div class="upload-area" id="front-upload-area" onclick="document.getElementById('front-input').click()">
+            <div id="front-upload-content"><div class="upload-icon">🎴</div><div class="upload-text"><strong>Haz clic</strong> o arrastra la imagen frontal</div><div class="upload-text" style="font-size:0.75rem;margin-top:0.3rem;">PNG, JPG, WEBP — Ratio 2:3 recomendado</div></div>
+            <img id="front-preview" class="upload-preview" alt="">
+            <input type="file" id="front-input" class="upload-input" accept="image/*" onchange="previewImage(this,'front-preview','front-upload-content')">
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Imagen reverso <span style="color:var(--text2);font-size:0.75rem;">(opcional)</span></label>
+          <div class="upload-area" id="back-upload-area" onclick="document.getElementById('back-input').click()">
+            <div id="back-upload-content"><div class="upload-icon">🔄</div><div class="upload-text"><strong>Haz clic</strong> o arrastra la imagen del reverso</div></div>
+            <img id="back-preview" class="upload-preview" alt="">
+            <input type="file" id="back-input" class="upload-input" accept="image/*" onchange="previewImage(this,'back-preview','back-upload-content')">
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notas / Descripción <span style="color:var(--text2);font-size:0.75rem;">(opcional)</span></label>
+          <textarea class="form-input" id="card-notes" rows="3" placeholder="Notas sobre esta carta..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.8rem;margin-top:1.5rem;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="closeModal('add-modal')">Cancelar</button>
+        <button class="btn" onclick="saveCard()">Guardar carta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" style="max-width:800px;">
+    <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+    <div class="modal-body" id="detail-content"></div>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal" style="max-width:600px;">
+    <button class="modal-close" onclick="closeModal('import-modal')">✕</button>
+    <div class="modal-header">
+      <div class="modal-title">Importar / Exportar</div>
+      <div class="modal-subtitle">Pega un JSON exportado para restaurar tu colección</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">JSON de la colección</label>
+        <textarea class="import-area" id="import-json" placeholder='Pega aquí el JSON exportado...'></textarea>
+      </div>
+      <div style="display:flex;gap:0.8rem;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="closeModal('import-modal')">Cancelar</button>
+        <button class="btn btn-red" onclick="clearCollection()">Borrar todo</button>
+        <button class="btn" onclick="importCollection()">Importar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADMIN -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal" style="max-width:420px;">
+    <button class="modal-close" onclick="closeModal('admin-modal')">✕</button>
+    <div class="modal-header">
+      <div class="modal-title">🔒 Acceso Administrador</div>
+      <div class="modal-subtitle">Introduce la contraseña para gestionar la colección</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label">Contraseña</label>
+        <input type="password" class="form-input" id="admin-password-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAdminPassword()">
+      </div>
+      <div style="display:flex;gap:0.8rem;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="closeModal('admin-modal')">Cancelar</button>
+        <button class="btn" onclick="checkAdminPassword()">Entrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MUSIC PLAYER -->
+<div class="music-player" id="music-player">
+  <div class="music-progress" id="music-progress" style="width:0%"></div>
+  <div class="music-icon" onclick="toggleMusicPlayer()" title="Minimizar">🎵</div>
+  <div class="music-info">
+    <div class="music-title" id="music-title">Sin música</div>
+    <div class="music-subtitle" id="music-subtitle">Admin: carga una canción</div>
+  </div>
+  <div class="music-controls">
+    <button class="music-btn" id="play-music-btn" onclick="togglePlayMusic()" title="Play/Pause">▶</button>
+    <button class="music-btn" id="mute-btn" onclick="toggleMute()" title="Silenciar">🔊</button>
+    <button class="music-btn admin-only" onclick="openMusicUpload()" title="Cargar música" style="font-size:0.75rem;">📂</button>
+  </div>
+  <div class="music-vol">
+    <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="35" oninput="setVolume(this.value)">
+  </div>
+  <input type="file" id="music-file-input" accept="audio/*" style="display:none" onchange="loadMusicFile(this)">
+</div>
+
+<!-- ENVELOPE OVERLAY -->
+<div class="envelope-overlay" id="envelope-overlay">
+  <div class="envelope-particles" id="envelope-particles"></div>
+  <div class="envelope-hint" id="envelope-hint">✦ NUEVA CARTA AÑADIDA ✦</div>
+
+  <!-- EL SOBRE -->
+  <div class="envelope-wrap" id="envelope-wrap" onclick="openEnvelope()">
+    <div class="envelope" id="envelope-el">
+      <div class="env-body">
+        <div class="env-corner tl"></div>
+        <div class="env-corner tr"></div>
+        <div class="env-corner bl"></div>
+        <div class="env-corner br"></div>
+        <div class="env-card-count" id="env-card-count"></div>
+        <div class="env-seal">🎴</div>
+        <div class="env-label">CARD VAULT COLLECTION</div>
+        <!-- Carta asomando -->
+        <div class="env-card-reveal" id="env-card-reveal">
+          <div class="env-card-placeholder">🎴</div>
+        </div>
+      </div>
+      <!-- Solapa -->
+      <div class="env-flap">
+        <div class="env-flap-inner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTA SHOWCASE (aparece después) -->
+  <div class="card-showcase" id="card-showcase">
+    <div class="showcase-card" id="showcase-card-el">
+      <div class="showcase-card-placeholder" id="showcase-placeholder">🎴</div>
+      <div class="showcase-glow"></div>
+      <div class="showcase-shine"></div>
+    </div>
+    <div class="showcase-info">
+      <div class="showcase-name" id="showcase-name">—</div>
+      <div class="showcase-universe" id="showcase-universe">—</div>
+      <div class="showcase-new-badge">✦ NUEVA CARTA ✦</div>
+    </div>
+    <div class="showcase-actions">
+      <button class="btn btn-outline" onclick="closeEnvelope()">Ver colección</button>
+      <button class="btn" onclick="openDetailFromShowcase()">Ver carta completa</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+// FIREBASE CONFIG
+// ============================================================
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAL8NILEKYZfwk7tGbaxro_my90ZoQzf2s",
+  authDomain: "cardvaultgg.firebaseapp.com",
+  projectId: "cardvaultgg",
+  storageBucket: "cardvaultgg.firebasestorage.app",
+  messagingSenderId: "843505245586",
+  appId: "1:843505245586:web:ca8e14ff20192275d2354b"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const firestoreDb = getFirestore(firebaseApp);
+const CARDS_COLLECTION = 'cards';
+const META_COLLECTION = 'meta';
+
+// ============================================================
+// CONFIG
+// ============================================================
+const ADMIN_PASSWORD = 'cardvault2024';
+
+// ============================================================
+// LOCAL STATE
+// ============================================================
+const SEEN_KEY = 'cardvault_seen';
+const MUSIC_KEY = 'cardvault_music_v2';
+
+let db = { cards: [] };
+let editingId = null;
+let currentView = 'grid';
+let activeUniverse = '';
+let flippedCards = new Set();
+let isAdmin = false;
+let showcaseCardId = null;
+let firebaseReady = false;
+
+// ============================================================
+// FIREBASE DATA LAYER
+// ============================================================
+async function loadCardsFromFirebase() {
+  try {
+    showLoadingState(true);
+    const snap = await getDocs(collection(firestoreDb, CARDS_COLLECTION));
+    db.cards = [];
+    snap.forEach(docSnap => {
+      db.cards.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    // Sort by createdAt
+    db.cards.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+    firebaseReady = true;
+    showLoadingState(false);
+    renderAll();
+    // Check for new cards for visitors
+    checkForNewCards();
+  } catch(e) {
+    console.error('Firebase load error:', e);
+    showLoadingState(false);
+    showToast('Error al cargar desde Firebase. Usando datos locales.', true);
+    // Fallback to localStorage
+    try {
+      const local = localStorage.getItem('cardvault_v2');
+      if (local) db = JSON.parse(local);
+    } catch(err) {}
+    renderAll();
+  }
+}
+
+async function saveCardToFirebase(card) {
+  try {
+    const cardId = card.id;
+    const cardData = { ...card };
+    delete cardData.id;
+    await setDoc(doc(firestoreDb, CARDS_COLLECTION, cardId), cardData);
+    return true;
+  } catch(e) {
+    console.error('Firebase save error:', e);
+    showToast('Error al guardar en Firebase', true);
+    return false;
+  }
+}
+
+async function deleteCardFromFirebase(id) {
+  try {
+    await deleteDoc(doc(firestoreDb, CARDS_COLLECTION, id));
+    return true;
+  } catch(e) {
+    console.error('Firebase delete error:', e);
+    showToast('Error al eliminar de Firebase', true);
+    return false;
+  }
+}
+
+async function saveMetaToFirebase(key, value) {
+  try {
+    await setDoc(doc(firestoreDb, META_COLLECTION, key), { value, updatedAt: Date.now() });
+  } catch(e) { console.error('Meta save error:', e); }
+}
+
+async function getMetaFromFirebase(key) {
+  try {
+    const { getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const snap = await getDoc(doc(firestoreDb, META_COLLECTION, key));
+    return snap.exists() ? snap.data().value : null;
+  } catch(e) { return null; }
+}
+
+function showLoadingState(loading) {
+  const grid = document.getElementById('cards-grid');
+  if (loading) {
+    grid.innerHTML = '<div class="loading"><div class="spinner"></div>Conectando con Firebase...</div>';
+  }
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+
+function showToast(msg, error=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (error?' error':'');
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.className='toast', 3000);
+}
+
+function fileToBase64(file) {
+  return new Promise((res,rej) => { const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsDataURL(file); });
+}
+
+function resizeImage(base64, maxW=800, maxH=1200) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      let w=img.width, h=img.height;
+      const ratio = Math.min(maxW/w, maxH/h, 1);
+      w=Math.round(w*ratio); h=Math.round(h*ratio);
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      res(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.src=base64;
+  });
+}
+
+// ============================================================
+// PREVIEW
+// ============================================================
+async function previewImage(input, previewId, contentId) {
+  if (!input.files[0]) return;
+  const b64 = await fileToBase64(input.files[0]);
+  const preview = document.getElementById(previewId);
+  const content = document.getElementById(contentId);
+  preview.src=b64; preview.style.display='block'; content.style.display='none';
+}
+window.previewImage = previewImage;
+
+// ============================================================
+// SAVE CARD
+// ============================================================
+async function saveCard() {
+  const name = document.getElementById('card-name').value.trim();
+  const universe = document.getElementById('card-universe').value.trim();
+  if (!name || !universe) { showToast('El nombre y el universo son obligatorios', true); return; }
+
+  const saveBtn = document.querySelector('#add-modal .btn:last-child');
+  if (saveBtn) { saveBtn.textContent = 'Guardando...'; saveBtn.disabled = true; }
+
+  const frontFile = document.getElementById('front-input').files[0];
+  const backFile = document.getElementById('back-input').files[0];
+  let frontImg=null, backImg=null;
+  if (frontFile) { const r=await fileToBase64(frontFile); frontImg=await resizeImage(r); }
+  if (backFile) { const r=await fileToBase64(backFile); backImg=await resizeImage(r); }
+
+  if (editingId) {
+    const idx = db.cards.findIndex(c=>c.id===editingId);
+    if (idx!==-1) {
+      const ex = db.cards[idx];
+      const updated = { ...ex, name, universe, number:document.getElementById('card-number').value||'', rarity:document.getElementById('card-rarity').value, notes:document.getElementById('card-notes').value, frontImg:frontImg||ex.frontImg, backImg:backImg||ex.backImg, updatedAt:Date.now() };
+      db.cards[idx] = updated;
+      await saveCardToFirebase(updated);
+      showToast('Carta actualizada');
+    }
+    editingId=null;
+  } else {
+    const card = { id:generateId(), name, universe, number:document.getElementById('card-number').value||'', rarity:document.getElementById('card-rarity').value, notes:document.getElementById('card-notes').value, frontImg, backImg, createdAt:Date.now(), updatedAt:Date.now() };
+    db.cards.unshift(card);
+    const saved = await saveCardToFirebase(card);
+    if (saved) {
+      // Marcar como nueva para visitantes
+      await markNewCardFirebase(card.id);
+      showToast(`✅ "${name}" guardada en la nube`);
+    }
+  }
+
+  if (saveBtn) { saveBtn.textContent = 'Guardar carta'; saveBtn.disabled = false; }
+  closeModal('add-modal');
+  renderAll();
+}
+window.saveCard = saveCard;
+
+// ============================================================
+// DELETE / EDIT
+// ============================================================
+async function deleteCard(id, e) {
+  if (e) e.stopPropagation();
+  const card = db.cards.find(c=>c.id===id);
+  if (!card) return;
+  if (!confirm(`¿Eliminar "${card.name}"?`)) return;
+  db.cards = db.cards.filter(c=>c.id!==id);
+  await deleteCardFromFirebase(id);
+  closeModal('detail-modal'); renderAll();
+  showToast('Carta eliminada');
+}
+window.deleteCard = deleteCard;
+
+function editCard(id, e) {
+  if (e) e.stopPropagation();
+  const card = db.cards.find(c=>c.id===id);
+  if (!card) return;
+  editingId=id;
+  document.getElementById('add-modal-title').textContent='Editar carta';
+  document.getElementById('card-name').value=card.name;
+  document.getElementById('card-universe').value=card.universe;
+  document.getElementById('card-number').value=card.number||'';
+  document.getElementById('card-rarity').value=card.rarity||'';
+  document.getElementById('card-notes').value=card.notes||'';
+  const fp=document.getElementById('front-preview'), bp=document.getElementById('back-preview');
+  if (card.frontImg) { fp.src=card.frontImg; fp.style.display='block'; document.getElementById('front-upload-content').style.display='none'; }
+  else { fp.style.display='none'; document.getElementById('front-upload-content').style.display='block'; }
+  if (card.backImg) { bp.src=card.backImg; bp.style.display='block'; document.getElementById('back-upload-content').style.display='none'; }
+  else { bp.style.display='none'; document.getElementById('back-upload-content').style.display='block'; }
+  document.getElementById('front-input').value='';
+  document.getElementById('back-input').value='';
+  closeModal('detail-modal'); openModal('add-modal');
+}
+window.editCard = editCard;
+
+// ============================================================
+// RENDER
+// ============================================================
+function getFilteredCards() {
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  const uFilter = document.getElementById('universe-filter').value;
+  const sort = document.getElementById('sort-select').value;
+  let cards = [...db.cards];
+  if (activeUniverse) cards=cards.filter(c=>c.universe===activeUniverse);
+  if (uFilter) cards=cards.filter(c=>c.universe===uFilter);
+  if (search) cards=cards.filter(c=>c.name.toLowerCase().includes(search)||c.universe.toLowerCase().includes(search)||(c.notes||'').toLowerCase().includes(search));
+  switch(sort) {
+    case 'date-asc': cards.sort((a,b)=>a.createdAt-b.createdAt); break;
+    case 'date-desc': cards.sort((a,b)=>b.createdAt-a.createdAt); break;
+    case 'name-asc': cards.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    case 'name-desc': cards.sort((a,b)=>b.name.localeCompare(a.name)); break;
+    case 'universe': cards.sort((a,b)=>a.universe.localeCompare(b.universe)||a.name.localeCompare(b.name)); break;
+    case 'number': cards.sort((a,b)=>(parseInt(a.number)||9999)-(parseInt(b.number)||9999)); break;
+  }
+  return cards;
+}
+
+function renderAll() { renderStats(); renderSidebar(); renderGrid(); updateUniverseFilter(); }
+window.renderAll = renderAll;
+
+function renderStats() {
+  document.getElementById('total-cards').textContent=db.cards.length;
+  const u=new Set(db.cards.map(c=>c.universe));
+  document.getElementById('total-universes').textContent=u.size;
+  document.getElementById('with-reverse').textContent=db.cards.filter(c=>c.backImg).length;
+  document.getElementById('all-count').textContent=db.cards.length;
+}
+
+function renderSidebar() {
+  const map={};
+  db.cards.forEach(c=>{ map[c.universe]=(map[c.universe]||0)+1; });
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  const list=document.getElementById('universe-list');
+  list.innerHTML=`<div class="universe-item ${!activeUniverse?'active':''}" onclick="filterByUniverse('')">Todas las cartas<span class="universe-count">${db.cards.length}</span></div>`
+    +sorted.map(([u,c])=>`<div class="universe-item ${activeUniverse===u?'active':''}" onclick="filterByUniverse('${u.replace(/'/g,"\\'")}')"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;" title="${u}">${u}</span><span class="universe-count">${c}</span></div>`).join('');
+}
+
+function updateUniverseFilter() {
+  const sel=document.getElementById('universe-filter');
+  const cur=sel.value;
+  const universes=[...new Set(db.cards.map(c=>c.universe))].sort();
+  sel.innerHTML='<option value="">Todos los universos</option>'+universes.map(u=>`<option value="${u}"${cur===u?' selected':''}>${u}</option>`).join('');
+  const dl=document.getElementById('universe-suggestions');
+  dl.innerHTML=universes.map(u=>`<option value="${u}">`).join('');
+}
+
+function renderGrid() {
+  const cards=getFilteredCards();
+  const grid=document.getElementById('cards-grid');
+  grid.className='cards-grid'+(currentView==='list'?' list-view':'');
+  document.getElementById('filtered-count').textContent=cards.length;
+  document.getElementById('section-title').textContent=activeUniverse||'Toda la colección';
+  if (cards.length===0) {
+    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🎴</div><div class="empty-title">${db.cards.length===0?'Tu colección está vacía':'No se encontraron cartas'}</div></div>`;
+    return;
+  }
+  grid.innerHTML=cards.map(card=>renderCardItem(card)).join('');
+}
+
+function renderCardItem(card) {
+  const hasReverse=card.backImg?`<div class="has-reverse-badge" title="Tiene reverso">↕</div>`:'';
+  if (currentView==='list') {
+    return `<div class="card-item" onclick="openDetail('${card.id}')" onmouseenter="playCardHover()">
+      <div class="card-img-wrapper">${card.frontImg?`<img class="card-img" src="${card.frontImg}" alt="${card.name}" loading="lazy">`:`<div class="card-placeholder"><span style="font-size:1rem;">🎴</span></div>`}</div>
+      <div class="list-info"><div class="list-name">${card.name}</div><div class="list-universe">${card.universe}${card.number?` · #${card.number}`:''}${card.rarity?` · ${card.rarity}`:''}</div></div>
+      <div class="list-actions">
+        ${card.backImg?`<span style="font-size:0.7rem;color:var(--accent);padding:4px 8px;background:rgba(124,92,191,0.15);border-radius:4px;border:1px solid rgba(124,92,191,0.3);">Reverso ↕</span>`:''}
+        <button class="btn btn-outline admin-inline" style="padding:0.3rem 0.7rem;font-size:0.75rem;" onclick="editCard('${card.id}',event)">Editar</button>
+        <button class="btn btn-red admin-inline" style="padding:0.3rem 0.7rem;font-size:0.75rem;" onclick="deleteCard('${card.id}',event)">Borrar</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="card-item" onclick="openDetail('${card.id}')" onmouseenter="playCardHover()">
+    ${card.number?`<div class="card-number">#${String(card.number).padStart(3,'0')}</div>`:''}
+    ${hasReverse}
+    <div class="card-img-wrapper">
+      ${card.frontImg?`<img class="card-img" src="${card.frontImg}" alt="${card.name}" loading="lazy">`:`<div class="card-placeholder"><span class="placeholder-icon">🎴</span><span style="font-size:0.65rem;color:var(--text2);text-align:center;padding:0 0.5rem;">${card.name}</span></div>`}
+    </div>
+    <div class="card-overlay">
+      <div class="card-name-overlay">${card.name}</div>
+      <div class="card-universe-overlay">${card.universe}</div>
+    </div>
+    <div class="card-actions">
+      <button class="card-action-btn admin-inline" onclick="editCard('${card.id}',event)" title="Editar">✏️</button>
+      <button class="card-action-btn delete admin-inline" onclick="deleteCard('${card.id}',event)" title="Eliminar">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// DETAIL MODAL
+// ============================================================
+function openDetail(id) {
+  const card=db.cards.find(c=>c.id===id);
+  if (!card) return;
+  playCardClick();
+  const isFlipped=flippedCards.has(id);
+  const imgSection=card.frontImg||card.backImg
+    ?`<div class="card-flip-container ${isFlipped?'flipped':''}" id="flip-container-${id}">
+        <div class="card-flip-inner">
+          <div class="card-face">${card.frontImg?`<img src="${card.frontImg}" alt="${card.name}">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:3rem;">🎴</div>`}</div>
+          <div class="card-face card-face-back">${card.backImg?`<img src="${card.backImg}" alt="Reverso" style="width:100%;height:100%;object-fit:cover;">`:`<div style="text-align:center;padding:1rem;"><div style="font-size:2rem;">🔄</div><div style="font-size:0.8rem;color:var(--text2);">Sin reverso</div></div>`}</div>
+        </div>
+      </div>
+      ${card.backImg?`<button class="btn flip-btn" onclick="toggleFlip('${id}')">${isFlipped?'👁 Ver frontal':'🔄 Ver reverso'}</button>`:''}`
+    :`<div class="card-detail-img-placeholder">🎴</div>`;
+  const created=new Date(card.createdAt).toLocaleDateString('es-ES');
+  document.getElementById('detail-content').innerHTML=`
+    <div class="card-detail-content">
+      <div class="card-detail-images">${imgSection}</div>
+      <div class="card-detail-info">
+        <div class="detail-name">${card.name}</div>
+        <div class="detail-universe">📁 ${card.universe}</div>
+        <div class="detail-meta">
+          ${card.number?`<div class="meta-item"><div class="meta-label">Número</div><div class="meta-value">#${String(card.number).padStart(3,'0')}</div></div>`:''}
+          ${card.rarity?`<div class="meta-item"><div class="meta-label">Tipo / Edición</div><div class="meta-value">${card.rarity}</div></div>`:''}
+          <div class="meta-item"><div class="meta-label">Añadida</div><div class="meta-value">${created}</div></div>
+          <div class="meta-item"><div class="meta-label">Reverso</div><div class="meta-value">${card.backImg?'✅ Sí':'❌ No'}</div></div>
+        </div>
+        ${card.notes?`<div class="detail-notes">${card.notes}</div>`:''}
+        <div class="detail-actions">
+          <div class="admin-detail-actions">
+            <button class="btn" onclick="editCard('${id}')">✏️ Editar</button>
+            <button class="btn btn-red" onclick="deleteCard('${id}')">🗑 Eliminar</button>
+          </div>
+          <button class="btn btn-outline" onclick="closeModal('detail-modal')">Cerrar</button>
+        </div>
+      </div>
+    </div>`;
+  openModal('detail-modal');
+}
+window.openDetail = openDetail;
+
+function toggleFlip(id) {
+  const c=document.getElementById(`flip-container-${id}`);
+  if (!c) return;
+  playCardFlip();
+  if (flippedCards.has(id)) { flippedCards.delete(id); c.classList.remove('flipped'); c.nextElementSibling.textContent='🔄 Ver reverso'; }
+  else { flippedCards.add(id); c.classList.add('flipped'); c.nextElementSibling.textContent='👁 Ver frontal'; }
+}
+window.toggleFlip = toggleFlip;
+
+// ============================================================
+// ENVELOPE SYSTEM — Firebase version
+// ============================================================
+const ENVELOPE_ANIM = { phase:'idle', cardId:null };
+
+async function markNewCardFirebase(cardId) {
+  try {
+    const existing = await getMetaFromFirebase('newCards') || [];
+    const updated = [...existing, cardId];
+    await saveMetaToFirebase('newCards', updated);
+  } catch(e) { console.error(e); }
+}
+
+async function checkForNewCards() {
+  if (isAdmin) return;
+  try {
+    const newCards = await getMetaFromFirebase('newCards') || [];
+    const seen = JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
+    const unseen = newCards.filter(id => !seen.includes(id) && db.cards.find(c=>c.id===id));
+    if (unseen.length > 0) {
+      setTimeout(() => showEnvelope(unseen[0], unseen.length), 1500);
+    }
+  } catch(e) {}
+}
+
+function showEnvelope(cardId, totalNew) {
+  const card = db.cards.find(c=>c.id===cardId);
+  if (!card) return;
+  showcaseCardId = cardId;
+  ENVELOPE_ANIM.cardId = cardId;
+  ENVELOPE_ANIM.phase = 'waiting';
+  document.getElementById('env-card-count').textContent = totalNew > 1 ? `${totalNew} CARTAS NUEVAS` : 'NUEVA CARTA';
+  document.getElementById('envelope-hint').textContent = totalNew > 1 ? `✦ ${totalNew} NUEVAS CARTAS TE ESPERAN ✦` : '✦ NUEVA CARTA AÑADIDA ✦';
+  const wrap = document.getElementById('envelope-wrap');
+  const showcase = document.getElementById('card-showcase');
+  wrap.className = 'envelope-wrap';
+  showcase.className = 'card-showcase';
+  document.getElementById('envelope-hint').style.display = 'block';
+  const revealEl = document.getElementById('env-card-reveal');
+  revealEl.innerHTML = card.frontImg ? `<img src="${card.frontImg}" alt="${card.name}" style="width:100%;height:100%;object-fit:cover;">` : `<div class="env-card-placeholder">🎴</div>`;
+  spawnParticles();
+  document.getElementById('envelope-overlay').classList.add('open');
+  playEnvelopeAppear();
+}
+
+function openEnvelope() {
+  if (ENVELOPE_ANIM.phase !== 'waiting') return;
+  ENVELOPE_ANIM.phase = 'opening';
+  const wrap = document.getElementById('envelope-wrap');
+  wrap.classList.add('opening');
+  playEnvelopeOpen();
+  setTimeout(() => wrap.classList.add('card-rising'), 500);
+  setTimeout(() => showCardShowcase(), 1200);
+}
+window.openEnvelope = openEnvelope;
+
+function showCardShowcase() {
+  ENVELOPE_ANIM.phase = 'showcase';
+  const card = db.cards.find(c=>c.id===ENVELOPE_ANIM.cardId);
+  if (!card) return;
+  document.getElementById('envelope-wrap').style.display = 'none';
+  document.getElementById('envelope-hint').style.display = 'none';
+  document.getElementById('showcase-name').textContent = card.name;
+  document.getElementById('showcase-universe').textContent = card.universe;
+  const showcaseEl = document.getElementById('showcase-card-el');
+  const placeholder = document.getElementById('showcase-placeholder');
+  if (card.frontImg) {
+    const img = document.createElement('img');
+    img.src = card.frontImg;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+    showcaseEl.insertBefore(img, placeholder);
+    placeholder.style.display = 'none';
+  }
+  document.getElementById('card-showcase').classList.add('visible');
+  playCardReveal();
+  markCardAsSeen(ENVELOPE_ANIM.cardId);
+}
+
+function markCardAsSeen(cardId) {
+  try {
+    const seen = JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
+    if (!seen.includes(cardId)) seen.push(cardId);
+    localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+  } catch(e) {}
+}
+
+function closeEnvelope() {
+  document.getElementById('envelope-overlay').classList.remove('open');
+  ENVELOPE_ANIM.phase = 'idle';
+  document.getElementById('envelope-wrap').style.display = '';
+  document.getElementById('showcase-placeholder').style.display = '';
+  document.getElementById('showcase-card-el').querySelectorAll('img').forEach(i=>i.remove());
+  setTimeout(async () => {
+    try {
+      const newCards = await getMetaFromFirebase('newCards') || [];
+      const seen = JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
+      const unseen = newCards.filter(id => !seen.includes(id) && db.cards.find(c=>c.id===id));
+      if (unseen.length > 0) showEnvelope(unseen[0], unseen.length);
+    } catch(e) {}
+  }, 500);
+}
+window.closeEnvelope = closeEnvelope;
+
+function openDetailFromShowcase() {
+  closeEnvelope();
+  setTimeout(() => { if (showcaseCardId) openDetail(showcaseCardId); }, 600);
+}
+window.openDetailFromShowcase = openDetailFromShowcase;
+
+function spawnParticles() {
+  const container = document.getElementById('envelope-particles');
+  container.innerHTML = '';
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const x=30+Math.random()*40, y=30+Math.random()*40;
+    const tx=(Math.random()-0.5)*400, ty=(Math.random()-0.5)*400;
+    const dur=1.5+Math.random()*2, delay=Math.random()*1;
+    p.style.cssText=`left:${x}%;top:${y}%;--tx:${tx}px;--ty:${ty}px;--dur:${dur}s;--delay:${delay}s;`;
+    container.appendChild(p);
+  }
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+window.openModal = openModal;
+window.closeModal = closeModal;
+
+function openAddModal() {
+  editingId=null;
+  document.getElementById('add-modal-title').textContent='Añadir nueva carta';
+  ['card-name','card-universe','card-number','card-rarity','card-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('front-preview').style.display='none';
+  document.getElementById('back-preview').style.display='none';
+  document.getElementById('front-upload-content').style.display='block';
+  document.getElementById('back-upload-content').style.display='block';
+  document.getElementById('front-input').value='';
+  document.getElementById('back-input').value='';
+  openModal('add-modal');
+}
+window.openAddModal = openAddModal;
+
+function openImportModal() { document.getElementById('import-json').value=''; openModal('import-modal'); }
+window.openImportModal = openImportModal;
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target===el) closeModal(el.id); });
+});
+
+// ============================================================
+// FILTERS
+// ============================================================
+function filterCards() { renderGrid(); }
+window.filterCards = filterCards;
+
+function filterByUniverse(u) { activeUniverse=u; document.getElementById('universe-filter').value=''; renderAll(); }
+window.filterByUniverse = filterByUniverse;
+
+function setView(v) {
+  currentView=v;
+  document.getElementById('grid-btn').className='view-btn'+(v==='grid'?' active':'');
+  document.getElementById('list-btn').className='view-btn'+(v==='list'?' active':'');
+  renderGrid();
+}
+window.setView = setView;
+
+// ============================================================
+// IMPORT / EXPORT
+// ============================================================
+async function exportCollection() {
+  const json=JSON.stringify({cards:db.cards},null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`cardvault_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast(`Colección exportada (${db.cards.length} cartas)`);
+}
+window.exportCollection = exportCollection;
+
+async function importCollection() {
+  const raw=document.getElementById('import-json').value.trim();
+  if (!raw) { showToast('Pega el JSON primero',true); return; }
+  try {
+    const data=JSON.parse(raw);
+    if (!data.cards||!Array.isArray(data.cards)) throw new Error();
+    showToast('Importando cartas a Firebase...');
+    let imported = 0;
+    for (const card of data.cards) {
+      if (!db.cards.find(c=>c.id===card.id)) {
+        db.cards.push(card);
+        await saveCardToFirebase(card);
+        imported++;
+      }
+    }
+    closeModal('import-modal'); renderAll();
+    showToast(`✅ ${imported} cartas importadas a Firebase`);
+  } catch(e) { showToast('JSON inválido',true); }
+}
+window.importCollection = importCollection;
+
+async function clearCollection() {
+  if (!confirm(`¿Borrar TODAS las ${db.cards.length} cartas de Firebase?`)) return;
+  showToast('Borrando de Firebase...');
+  for (const card of db.cards) { await deleteCardFromFirebase(card.id); }
+  db={cards:[]}; closeModal('import-modal'); renderAll();
+  showToast('Colección borrada');
+}
+window.clearCollection = clearCollection;
+
+// ============================================================
+// DRAG AND DROP
+// ============================================================
+function setupDragDrop(areaId, inputId, previewId, contentId) {
+  const area=document.getElementById(areaId);
+  if (!area) return;
+  area.addEventListener('dragover',e=>{e.preventDefault();area.classList.add('drag-over');});
+  area.addEventListener('dragleave',()=>area.classList.remove('drag-over'));
+  area.addEventListener('drop',async e=>{
+    e.preventDefault(); area.classList.remove('drag-over');
+    const file=e.dataTransfer.files[0];
+    if (!file||!file.type.startsWith('image/')) return;
+    const input=document.getElementById(inputId);
+    const dt=new DataTransfer(); dt.items.add(file); input.files=dt.files;
+    await previewImage(input,previewId,contentId);
+  });
+}
+
+// ============================================================
+// KEYBOARD
+// ============================================================
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>closeModal(m.id));
+});
+
+// ============================================================
+// ADMIN SYSTEM
+// ============================================================
+function toggleAdminPanel() {
+  if (isAdmin) { logoutAdmin(); }
+  else { document.getElementById('admin-password-input').value=''; openModal('admin-modal'); setTimeout(()=>document.getElementById('admin-password-input').focus(),100); }
+}
+window.toggleAdminPanel = toggleAdminPanel;
+
+function checkAdminPassword() {
+  const input=document.getElementById('admin-password-input').value;
+  if (input===ADMIN_PASSWORD) {
+    isAdmin=true; document.body.classList.add('is-admin');
+    document.getElementById('admin-lock-btn').textContent='🔓';
+    document.getElementById('admin-lock-btn').title='Cerrar sesión admin';
+    closeModal('admin-modal'); showToast('Modo administrador activado'); renderAll();
+  } else {
+    document.getElementById('admin-password-input').value='';
+    document.getElementById('admin-password-input').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('admin-password-input').style.borderColor='',1200);
+    showToast('Contraseña incorrecta',true);
+  }
+}
+window.checkAdminPassword = checkAdminPassword;
+
+function logoutAdmin() {
+  if (!confirm('¿Cerrar sesión de administrador?')) return;
+  isAdmin=false; document.body.classList.remove('is-admin');
+  document.getElementById('admin-lock-btn').textContent='🔒';
+  document.getElementById('admin-lock-btn').title='Acceso administrador';
+  showToast('Sesión cerrada'); renderAll();
+}
+window.logoutAdmin = logoutAdmin;
+
+// ============================================================
+// MUSIC PLAYER
+// ============================================================
+let musicAudio=null, musicMuted=false, musicPlayerCollapsed=false, musicIsPlaying=false;
+
+function initMusic() {
+  try {
+    const saved=localStorage.getItem(MUSIC_KEY);
+    if (!saved) return;
+    const data=JSON.parse(saved);
+    if (data&&data.src) {
+      document.getElementById('music-title').textContent=data.name||'Card Vault OST';
+      document.getElementById('music-subtitle').textContent='Pulsa ▶ para reproducir';
+      createAudio(data.src);
+    }
+  } catch(e) {}
+}
+
+function createAudio(src) {
+  if (musicAudio) { musicAudio.pause(); musicAudio=null; }
+  musicAudio=new Audio();
+  musicAudio.loop=true;
+  musicAudio.volume=(parseInt(document.getElementById('vol-slider').value)||35)/100;
+  musicAudio.muted=musicMuted;
+  musicAudio.addEventListener('timeupdate',updateProgress);
+  musicAudio.addEventListener('playing',()=>{ musicIsPlaying=true; document.getElementById('play-music-btn').textContent='⏸'; document.getElementById('music-subtitle').textContent='Reproduciendo en bucle'; });
+  musicAudio.addEventListener('pause',()=>{ musicIsPlaying=false; document.getElementById('play-music-btn').textContent='▶'; if(!musicAudio.ended) document.getElementById('music-subtitle').textContent='Pausado'; });
+  musicAudio.src=src; musicAudio.load();
+}
+
+function togglePlayMusic() {
+  if (!musicAudio) { showToast('No hay música cargada',true); return; }
+  if (musicIsPlaying) musicAudio.pause();
+  else musicAudio.play().catch(()=>{});
+}
+window.togglePlayMusic = togglePlayMusic;
+
+function loadMusicFile(input) {
+  if (!input.files[0]) return;
+  const file=input.files[0];
+  document.getElementById('music-subtitle').textContent='Cargando...';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const src=e.target.result;
+    const name=file.name.replace(/\.[^.]+$/,'');
+    try { localStorage.setItem(MUSIC_KEY,JSON.stringify({src,name})); }
+    catch(err) { showToast('Archivo muy grande — usa MP3 de menos de 5MB',true); return; }
+    document.getElementById('music-title').textContent=name;
+    document.getElementById('music-subtitle').textContent='Listo — pulsa ▶';
+    createAudio(src); showToast('✅ Música cargada');
+  };
+  reader.readAsDataURL(file); input.value='';
+}
+window.loadMusicFile = loadMusicFile;
+
+function toggleMute() {
+  musicMuted=!musicMuted;
+  if (musicAudio) musicAudio.muted=musicMuted;
+  document.getElementById('mute-btn').textContent=musicMuted?'🔇':'🔊';
+}
+window.toggleMute = toggleMute;
+
+function setVolume(val) { if (musicAudio) musicAudio.volume=parseInt(val)/100; }
+window.setVolume = setVolume;
+
+function updateProgress() {
+  if (!musicAudio||!musicAudio.duration) return;
+  document.getElementById('music-progress').style.width=(musicAudio.currentTime/musicAudio.duration*100)+'%';
+}
+
+function toggleMusicPlayer() {
+  musicPlayerCollapsed=!musicPlayerCollapsed;
+  document.getElementById('music-player').classList.toggle('collapsed',musicPlayerCollapsed);
+}
+window.toggleMusicPlayer = toggleMusicPlayer;
+
+function openMusicUpload() {
+  if (!isAdmin) { showToast('Solo el administrador puede cambiar la música',true); return; }
+  document.getElementById('music-file-input').click();
+}
+window.openMusicUpload = openMusicUpload;
+
+// ============================================================
+// SOUND SYSTEM
+// ============================================================
+let audioCtx=null, lastHoverSound=0;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if (audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playCardClick() {
+  try {
+    const ctx=getAudioCtx(), now=ctx.currentTime;
+    function cardThwack(t,v) {
+      const sz=Math.floor(ctx.sampleRate*0.045), b=ctx.createBuffer(1,sz,ctx.sampleRate), d=b.getChannelData(0);
+      for(let i=0;i<sz;i++){ const env=Math.pow(1-i/sz,2.5), crack=i<sz*0.1?(Math.random()*2-1)*1.5:(Math.random()*2-1); d[i]=crack*env; }
+      const src=ctx.createBufferSource(); src.buffer=b;
+      const f1=ctx.createBiquadFilter(); f1.type='bandpass'; f1.frequency.value=900; f1.Q.value=0.8;
+      const f2=ctx.createBiquadFilter(); f2.type='lowshelf'; f2.frequency.value=300; f2.gain.value=6;
+      const g=ctx.createGain(); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+      src.connect(f1);f1.connect(f2);f2.connect(g);g.connect(ctx.destination); src.start(t);
+    }
+    const body=ctx.createOscillator(), bg=ctx.createGain();
+    body.type='sine'; body.frequency.setValueAtTime(95,now); body.frequency.exponentialRampToValueAtTime(60,now+0.12);
+    bg.gain.setValueAtTime(0.22,now); bg.gain.exponentialRampToValueAtTime(0.001,now+0.18);
+    body.connect(bg);bg.connect(ctx.destination); body.start(now); body.stop(now+0.2);
+    cardThwack(now,0.55);
+  } catch(e) {}
+}
+
+function playCardFlip() {
+  try {
+    const ctx=getAudioCtx(), now=ctx.currentTime;
+    function paperFlap(t,v,p) {
+      const sz=Math.floor(ctx.sampleRate*0.07), b=ctx.createBuffer(1,sz,ctx.sampleRate), d=b.getChannelData(0);
+      for(let i=0;i<sz;i++){ const env=Math.sin((i/sz)*Math.PI), fl=Math.sin(i/(ctx.sampleRate/(p*8)))*0.3; d[i]=((Math.random()*2-1)+fl)*env; }
+      const src=ctx.createBufferSource(); src.buffer=b;
+      const f1=ctx.createBiquadFilter(); f1.type='bandpass'; f1.frequency.value=1800*p; f1.Q.value=0.6;
+      const f2=ctx.createBiquadFilter(); f2.type='highpass'; f2.frequency.value=400;
+      const g=ctx.createGain(); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+      src.connect(f1);f1.connect(f2);f2.connect(g);g.connect(ctx.destination); src.start(t);
+    }
+    function cardLand(t,v) {
+      const sz=Math.floor(ctx.sampleRate*0.04), b=ctx.createBuffer(1,sz,ctx.sampleRate), d=b.getChannelData(0);
+      for(let i=0;i<sz;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/sz,3);
+      const src=ctx.createBufferSource(); src.buffer=b;
+      const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=700; f.Q.value=0.7;
+      const g=ctx.createGain(); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+      src.connect(f);f.connect(g);g.connect(ctx.destination); src.start(t);
+      const res=ctx.createOscillator(), rg=ctx.createGain();
+      res.type='sine'; res.frequency.setValueAtTime(85,t); res.frequency.exponentialRampToValueAtTime(55,t+0.15);
+      rg.gain.setValueAtTime(0.18,t); rg.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+      res.connect(rg);rg.connect(ctx.destination); res.start(t); res.stop(t+0.22);
+    }
+    paperFlap(now,0.45,1.0); paperFlap(now+0.06,0.35,1.2); paperFlap(now+0.12,0.4,0.9); cardLand(now+0.22,0.5);
+  } catch(e) {}
+}
+
+function playCardHover() {
+  try {
+    const now_ms=Date.now();
+    if (now_ms-lastHoverSound<120) return;
+    lastHoverSound=now_ms;
+    const ctx=getAudioCtx(), now=ctx.currentTime;
+    const osc=ctx.createOscillator(), gain=ctx.createGain(), filter=ctx.createBiquadFilter();
+    osc.type='sine'; osc.frequency.setValueAtTime(180,now); osc.frequency.linearRampToValueAtTime(220,now+0.12);
+    filter.type='bandpass'; filter.frequency.value=200; filter.Q.value=3;
+    gain.gain.setValueAtTime(0,now); gain.gain.linearRampToValueAtTime(0.06,now+0.04); gain.gain.exponentialRampToValueAtTime(0.001,now+0.18);
+    osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination); osc.start(now); osc.stop(now+0.2);
+  } catch(e) {}
+}
+window.playCardHover = playCardHover;
+
+function playEnvelopeAppear() {
+  try {
+    const ctx=getAudioCtx(), now=ctx.currentTime;
+    [220,330,440,550].forEach((freq,i) => {
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sine'; o.frequency.setValueAtTime(freq*0.5,now+i*0.08); o.frequency.exponentialRampToValueAtTime(freq,now+i*0.08+0.3);
+      g.gain.setValueAtTime(0,now+i*0.08); g.gain.linearRampToValueAtTime(0.12,now+i*0.08+0.1); g.gain.exponentialRampToValueAtTime(0.001,now+i*0.08+0.6);
+      o.connect(g);g.connect(ctx.destination); o.start(now+i*0.08); o.stop(now+i*0.08+0.7);
+    });
+  } catch(e) {}
+}
+
+function playEnvelopeOpen() {
+  try {
+    const ctx=getAudioCtx(), now=ctx.currentTime;
+    function tearSound(t,dur,pitch) {
+      const sz=Math.floor(ctx.sampleRate*dur), b=ctx.createBuffer(1,sz,ctx.sampleRate), d=b.getChannelData(0);
+      for(let i=0;i<sz;i++){ const env=i<sz*0.3?i/(sz*0.3):Math.pow(1-(i-sz*0.3)/(sz*0.7),0.5), mod=Math.sin(i*pitch*0.01)*0.3; d[i]=(Math.random()*2-1+mod)*env; }
+      const src=ctx.createBufferSource(); src.buffer=b;
+      const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2000*pitch; f.Q.value=0.4;
+      const f2=ctx.createBiquadFilter(); f2.type='highpass'; f2.frequency.value=800;
+      const g=ctx.createGain(); g.gain.setValueAtTime(0.3,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur+0.05);
+      src.connect(f);f.connect(f2);f2.connect(g);g.connect(ctx.destination); src.start(t);
+    }
+    function sealCrack(t) {
+      const sz=Math.floor(ctx.sampleRate*0.03), b=ctx.createBuffer(1,sz,ctx.sampleRate), d=b.getChannelData(0);
+      for(let i=0;i<sz;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/sz,4)*2;
+      const src=ctx.createBufferSource(); src.buffer=b;
+      const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1200; f.Q.value=0.8;
+      const g=ctx.createGain(); g.gain.setValueAtTime(0.4,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.04);
+      src.connect(f);f.connect(g);g.connect(ctx.destination); src.start(t);
+    }
+    function magicReveal(t) {
+      [523,659,784,1047].forEach((freq,i) => {
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sine'; o.frequency.setValueAtTime(freq,t+i*0.1);
+        g.gain.setValueAtTime(0,t+i*0.1); g.gain.linearRampToValueAtTime(0.1,t+i*0.1+0.05); g.gain.exponentialRampToValueAtTime(0.001,t+i*0.1+0.5);
+        o.connect(g);g.connect(ctx.destination); o.start(t+i*0.1); o.stop(t+i*0.1+0.6);
+      });
+    }
+    sealCrack(now); tearSound(now+0.05,0.35,1.0); tearSound(now+0.15,0.25,1.3); magicReveal(now+0.4);
+  } catch(e) {}
+}
+
+function playCardReveal() {
+  try {
+    const ctx=getAudioCtx(), now=ctx.currentTime;
+    [261,329,392,523,659,784].forEach((freq,i) => {
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='triangle'; o.frequency.setValueAtTime(freq,now+i*0.07);
+      g.gain.setValueAtTime(0,now+i*0.07); g.gain.linearRampToValueAtTime(0.15,now+i*0.07+0.04); g.gain.exponentialRampToValueAtTime(0.001,now+i*0.07+0.6);
+      o.connect(g);g.connect(ctx.destination); o.start(now+i*0.07); o.stop(now+i*0.07+0.7);
+    });
+    const o2=ctx.createOscillator(), g2=ctx.createGain();
+    o2.type='sine'; o2.frequency.setValueAtTime(1047,now+0.5); o2.frequency.exponentialRampToValueAtTime(2093,now+1.0);
+    g2.gain.setValueAtTime(0.12,now+0.5); g2.gain.exponentialRampToValueAtTime(0.001,now+1.5);
+    o2.connect(g2);g2.connect(ctx.destination); o2.start(now+0.5); o2.stop(now+1.6);
+  } catch(e) {}
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  setupDragDrop('front-upload-area','front-input','front-preview','front-upload-content');
+  setupDragDrop('back-upload-area','back-input','back-preview','back-upload-content');
+  initMusic();
+
+  // Unlock Web Audio on first interaction
+  document.addEventListener('click', () => {
+    try {
+      if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      if (audioCtx.state==='suspended') audioCtx.resume();
+    } catch(e) {}
+  }, { once:true });
+
+  // Load from Firebase
+  loadCardsFromFirebase();
+});
+</script>
+</body>
+</html>
