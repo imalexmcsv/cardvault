@@ -174,16 +174,19 @@ select:focus { border-color:var(--gold); }
 }
 .placeholder-icon { font-size:2rem; opacity:0.3; }
 .card-overlay {
-  position:absolute; inset:0;
-  background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 45%, transparent 100%);
-  display:flex; flex-direction:column; justify-content:flex-end; padding:0.9rem;
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:0.6rem 0.7rem 0.5rem;
+  min-height:35%;
 }
 .cards-grid.list-view .card-overlay { display:none; }
 .card-name-overlay {
-  font-family:'Cinzel',serif; font-size:0.85rem; color:var(--gold2);
-  font-weight:700; line-height:1.3; text-shadow:0 1px 6px rgba(0,0,0,0.9);
+  font-family:'Cinzel',serif; font-size:0.75rem; color:var(--gold2);
+  font-weight:700; line-height:1.2; text-shadow:0 1px 6px rgba(0,0,0,0.9);
+  word-break:break-word;
 }
-.card-universe-overlay { font-size:0.72rem; color:rgba(255,255,255,0.7); margin-top:3px; text-shadow:0 1px 4px rgba(0,0,0,0.9); }
+.card-universe-overlay { font-size:0.65rem; color:rgba(255,255,255,0.6); margin-top:2px; text-shadow:0 1px 4px rgba(0,0,0,0.9); }
 .card-number {
   position:absolute; top:6px; left:6px;
   background:rgba(0,0,0,0.7); border:1px solid var(--border2);
@@ -293,7 +296,7 @@ select:focus { border-color:var(--gold); }
 .detail-actions { display:flex; gap:0.8rem; margin-top:1.5rem; flex-wrap:wrap; }
 
 /* FLIP */
-.card-flip-container { perspective:1000px; width:220px; }
+.card-flip-container { perspective:1000px; width:300px; }
 .card-flip-inner {
   position:relative; width:100%; aspect-ratio:2/3;
   transform-style:preserve-3d; transition:transform 0.6s;
@@ -301,7 +304,8 @@ select:focus { border-color:var(--gold); }
 .card-flip-container.flipped .card-flip-inner { transform:rotateY(180deg); }
 .card-face {
   position:absolute; inset:0; backface-visibility:hidden;
-  border-radius:10px; overflow:hidden; border:1px solid var(--border2);
+  border-radius:12px; overflow:hidden; border:2px solid var(--border2);
+  box-shadow:0 8px 40px rgba(0,0,0,0.6);
 }
 .card-face-back { transform:rotateY(180deg); background:var(--bg3); display:flex; align-items:center; justify-content:center; }
 .card-face img { width:100%; height:100%; object-fit:cover; }
@@ -554,70 +558,79 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
   font-size:2rem;
 }
 
-/* CARD SHOWCASE — la carta grande después del sobre */
+/* CARD SHOWCASE — galería de nuevas */
 .card-showcase {
-  display:none; flex-direction:column; align-items:center; gap:1.5rem;
-  z-index:2; animation:showcaseIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  display:none; flex-direction:column; align-items:center; gap:1.2rem;
+  z-index:2; width:100%; max-width:900px; padding:0 1rem;
 }
 .card-showcase.visible { display:flex; }
-@keyframes showcaseIn {
-  from { transform:scale(0.5) translateY(40px); opacity:0; }
-  to { transform:scale(1) translateY(0); opacity:1; }
+
+.showcase-header { text-align:center; }
+.showcase-title { font-family:'Cinzel',serif; font-size:1.4rem; color:var(--gold); font-weight:900; letter-spacing:0.1em; }
+.showcase-subtitle { font-size:0.85rem; color:var(--text2); margin-top:0.3rem; }
+
+/* Galería de cartas */
+.showcase-gallery {
+  display:flex; gap:1rem; overflow-x:auto; padding:1rem 0.5rem;
+  width:100%; justify-content:center; flex-wrap:wrap;
+  max-height:60vh; overflow-y:auto;
 }
-.showcase-card {
-  width:260px; aspect-ratio:2/3;
-  border-radius:14px; overflow:hidden;
+.showcase-gallery::-webkit-scrollbar { height:4px; width:4px; }
+.showcase-gallery::-webkit-scrollbar-thumb { background:var(--gold); border-radius:2px; }
+
+.gallery-card {
+  flex-shrink:0; width:160px; aspect-ratio:2/3;
+  border-radius:10px; overflow:hidden;
   border:2px solid var(--gold);
-  box-shadow:0 0 60px rgba(201,168,76,0.5), 0 20px 60px rgba(0,0,0,0.8);
-  position:relative;
+  box-shadow:0 0 20px rgba(201,168,76,0.3), 0 8px 24px rgba(0,0,0,0.6);
+  position:relative; cursor:pointer;
+  animation:galleryCardIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  opacity:0; transform:translateY(30px) scale(0.8);
+  transition:transform 0.2s, box-shadow 0.2s;
 }
-.showcase-card img { width:100%; height:100%; object-fit:cover; }
-.showcase-card-placeholder {
+.gallery-card:hover {
+  transform:translateY(-4px) scale(1.04);
+  box-shadow:0 0 30px rgba(201,168,76,0.5), 0 12px 30px rgba(0,0,0,0.8);
+}
+@keyframes galleryCardIn {
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+.gallery-card img { width:100%; height:100%; object-fit:cover; }
+.gallery-card-placeholder {
   width:100%; height:100%;
   background:linear-gradient(135deg, var(--bg3), var(--bg2));
-  display:flex; align-items:center; justify-content:center; font-size:4rem;
+  display:flex; align-items:center; justify-content:center; font-size:2.5rem;
 }
-.showcase-glow {
-  position:absolute; inset:-2px;
-  border-radius:14px;
-  background:linear-gradient(135deg, var(--gold), transparent, var(--gold));
-  opacity:0.3;
-  animation:glowRotate 3s linear infinite;
+.gallery-card-label {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+  padding:0.5rem 0.4rem 0.4rem;
+}
+.gallery-card-name {
+  font-family:'Cinzel',serif; font-size:0.6rem; color:var(--gold2);
+  font-weight:700; line-height:1.2; text-shadow:0 1px 4px rgba(0,0,0,0.9);
+  word-break:break-word;
+}
+.gallery-card-universe { font-size:0.55rem; color:rgba(255,255,255,0.6); margin-top:1px; }
+.gallery-card-shine {
+  position:absolute; inset:0; border-radius:10px;
+  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
+  animation:shineMove 2.5s ease-in-out infinite;
   pointer-events:none;
 }
-@keyframes glowRotate {
-  from { transform:rotate(0deg); }
-  to { transform:rotate(360deg); }
-}
-.showcase-info { text-align:center; }
-.showcase-name { font-family:'Cinzel',serif; font-size:1.8rem; color:var(--gold); font-weight:900; letter-spacing:0.05em; }
-.showcase-universe { font-size:1rem; color:var(--text2); margin-top:0.3rem; letter-spacing:0.1em; }
 .showcase-new-badge {
   display:inline-block;
   background:linear-gradient(135deg, #c9a84c, #8a6520);
   color:#1a1200; font-family:'Cinzel',serif;
-  font-size:0.7rem; font-weight:700; letter-spacing:0.2em;
-  padding:0.3rem 1rem; border-radius:20px;
-  margin-top:0.8rem;
+  font-size:0.65rem; font-weight:700; letter-spacing:0.2em;
+  padding:0.25rem 0.8rem; border-radius:20px;
   animation:badgePulse 1s ease-in-out infinite alternate;
 }
 @keyframes badgePulse {
   from { box-shadow:0 0 10px rgba(201,168,76,0.4); }
   to { box-shadow:0 0 25px rgba(201,168,76,0.8); }
 }
-.showcase-actions { display:flex; gap:1rem; margin-top:0.5rem; flex-wrap:wrap; justify-content:center; }
-
-/* Brillo en la carta showcase */
-.showcase-shine {
-  position:absolute; inset:0; border-radius:14px;
-  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
-  animation:shineMove 2.5s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes shineMove {
-  0% { transform:translateX(-100%) skewX(-15deg); }
-  100% { transform:translateX(200%) skewX(-15deg); }
-}
+.showcase-actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
@@ -850,21 +863,16 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
     </div>
   </div>
 
-  <!-- CARTA SHOWCASE (aparece después) -->
+  <!-- CARTA SHOWCASE — galería -->
   <div class="card-showcase" id="card-showcase">
-    <div class="showcase-card" id="showcase-card-el">
-      <div class="showcase-card-placeholder" id="showcase-placeholder">🎴</div>
-      <div class="showcase-glow"></div>
-      <div class="showcase-shine"></div>
+    <div class="showcase-header">
+      <div class="showcase-title" id="showcase-title">CARTAS NUEVAS</div>
+      <div class="showcase-subtitle" id="showcase-subtitle">Haz clic en cualquier carta para verla en detalle</div>
+      <div class="showcase-new-badge" id="showcase-badge">✦ NUEVAS CARTAS ✦</div>
     </div>
-    <div class="showcase-info">
-      <div class="showcase-name" id="showcase-name">—</div>
-      <div class="showcase-universe" id="showcase-universe">—</div>
-      <div class="showcase-new-badge">✦ NUEVA CARTA ✦</div>
-    </div>
+    <div class="showcase-gallery" id="showcase-gallery"></div>
     <div class="showcase-actions">
-      <button class="btn btn-outline" onclick="closeEnvelope()">Ver colección</button>
-      <button class="btn" onclick="openDetailFromShowcase()">Ver carta completa</button>
+      <button class="btn btn-outline" onclick="closeEnvelope()">Ver toda la colección</button>
     </div>
   </div>
 </div>
@@ -1259,15 +1267,17 @@ function toggleFlip(id) {
 window.toggleFlip = toggleFlip;
 
 // ============================================================
-// ENVELOPE SYSTEM — Firebase version
+// ENVELOPE SYSTEM — Un sobre, todas las cartas nuevas
 // ============================================================
-const ENVELOPE_ANIM = { phase:'idle', cardId:null };
+const ENVELOPE_ANIM = { phase:'idle', newCards:[] };
 
 async function markNewCardFirebase(cardId) {
   try {
     const existing = await getMetaFromFirebase('newCards') || [];
-    const updated = [...existing, cardId];
-    await saveMetaToFirebase('newCards', updated);
+    if (!existing.includes(cardId)) {
+      const updated = [...existing, cardId];
+      await saveMetaToFirebase('newCards', updated);
+    }
   } catch(e) { console.error(e); }
 }
 
@@ -1278,26 +1288,38 @@ async function checkForNewCards() {
     const seen = JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
     const unseen = newCards.filter(id => !seen.includes(id) && db.cards.find(c=>c.id===id));
     if (unseen.length > 0) {
-      setTimeout(() => showEnvelope(unseen[0], unseen.length), 1500);
+      setTimeout(() => showEnvelope(unseen), 1500);
     }
   } catch(e) {}
 }
 
-function showEnvelope(cardId, totalNew) {
-  const card = db.cards.find(c=>c.id===cardId);
-  if (!card) return;
-  showcaseCardId = cardId;
-  ENVELOPE_ANIM.cardId = cardId;
+function showEnvelope(unseenIds) {
+  if (unseenIds.length === 0) return;
+  ENVELOPE_ANIM.newCards = unseenIds;
   ENVELOPE_ANIM.phase = 'waiting';
-  document.getElementById('env-card-count').textContent = totalNew > 1 ? `${totalNew} CARTAS NUEVAS` : 'NUEVA CARTA';
-  document.getElementById('envelope-hint').textContent = totalNew > 1 ? `✦ ${totalNew} NUEVAS CARTAS TE ESPERAN ✦` : '✦ NUEVA CARTA AÑADIDA ✦';
+
+  const count = unseenIds.length;
+  document.getElementById('env-card-count').textContent = count > 1 ? `${count} CARTAS NUEVAS` : 'NUEVA CARTA';
+  document.getElementById('envelope-hint').textContent = count > 1
+    ? `✦ ${count} NUEVAS CARTAS TE ESPERAN — HAZ CLIC PARA ABRIR ✦`
+    : '✦ NUEVA CARTA AÑADIDA — HAZ CLIC PARA ABRIR ✦';
+
+  // Reset envelope
   const wrap = document.getElementById('envelope-wrap');
-  const showcase = document.getElementById('card-showcase');
   wrap.className = 'envelope-wrap';
-  showcase.className = 'card-showcase';
+  wrap.style.display = '';
+  document.getElementById('card-showcase').className = 'card-showcase';
   document.getElementById('envelope-hint').style.display = 'block';
+
+  // Preload primera carta en el reveal
+  const firstCard = db.cards.find(c=>c.id===unseenIds[0]);
   const revealEl = document.getElementById('env-card-reveal');
-  revealEl.innerHTML = card.frontImg ? `<img src="${card.frontImg}" alt="${card.name}" style="width:100%;height:100%;object-fit:cover;">` : `<div class="env-card-placeholder">🎴</div>`;
+  if (firstCard) {
+    revealEl.innerHTML = firstCard.frontImg
+      ? `<img src="${firstCard.frontImg}" alt="${firstCard.name}" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div class="env-card-placeholder">🎴</div>`;
+  }
+
   spawnParticles();
   document.getElementById('envelope-overlay').classList.add('open');
   playEnvelopeAppear();
@@ -1310,30 +1332,56 @@ function openEnvelope() {
   wrap.classList.add('opening');
   playEnvelopeOpen();
   setTimeout(() => wrap.classList.add('card-rising'), 500);
-  setTimeout(() => showCardShowcase(), 1200);
+  setTimeout(() => showCardGallery(), 1200);
 }
 window.openEnvelope = openEnvelope;
 
-function showCardShowcase() {
+function showCardGallery() {
   ENVELOPE_ANIM.phase = 'showcase';
-  const card = db.cards.find(c=>c.id===ENVELOPE_ANIM.cardId);
-  if (!card) return;
+  const unseenIds = ENVELOPE_ANIM.newCards;
+  const cards = unseenIds.map(id => db.cards.find(c=>c.id===id)).filter(Boolean);
+
+  // Ocultar sobre
   document.getElementById('envelope-wrap').style.display = 'none';
   document.getElementById('envelope-hint').style.display = 'none';
-  document.getElementById('showcase-name').textContent = card.name;
-  document.getElementById('showcase-universe').textContent = card.universe;
-  const showcaseEl = document.getElementById('showcase-card-el');
-  const placeholder = document.getElementById('showcase-placeholder');
-  if (card.frontImg) {
-    const img = document.createElement('img');
-    img.src = card.frontImg;
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
-    showcaseEl.insertBefore(img, placeholder);
-    placeholder.style.display = 'none';
-  }
+
+  // Título
+  const count = cards.length;
+  document.getElementById('showcase-title').textContent = count > 1 ? `${count} CARTAS NUEVAS` : '¡NUEVA CARTA!';
+  document.getElementById('showcase-subtitle').textContent = count > 1
+    ? 'Haz clic en cualquier carta para verla en detalle'
+    : 'Haz clic para verla en detalle';
+  document.getElementById('showcase-badge').textContent = count > 1 ? `✦ ${count} NUEVAS CARTAS ✦` : '✦ NUEVA CARTA ✦';
+
+  // Galería
+  const gallery = document.getElementById('showcase-gallery');
+  gallery.innerHTML = '';
+
+  cards.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'gallery-card';
+    el.style.animationDelay = `${i * 0.1}s`;
+    el.onclick = () => {
+      closeEnvelope();
+      setTimeout(() => openDetail(card.id), 600);
+    };
+    el.innerHTML = `
+      ${card.frontImg
+        ? `<img src="${card.frontImg}" alt="${card.name}" loading="lazy">`
+        : `<div class="gallery-card-placeholder">🎴</div>`}
+      <div class="gallery-card-label">
+        <div class="gallery-card-name">${card.name}</div>
+        <div class="gallery-card-universe">${card.universe}</div>
+      </div>
+      <div class="gallery-card-shine"></div>`;
+    gallery.appendChild(el);
+  });
+
   document.getElementById('card-showcase').classList.add('visible');
   playCardReveal();
-  markCardAsSeen(ENVELOPE_ANIM.cardId);
+
+  // Marcar todas como vistas
+  unseenIds.forEach(id => markCardAsSeen(id));
 }
 
 function markCardAsSeen(cardId) {
@@ -1347,24 +1395,12 @@ function markCardAsSeen(cardId) {
 function closeEnvelope() {
   document.getElementById('envelope-overlay').classList.remove('open');
   ENVELOPE_ANIM.phase = 'idle';
-  document.getElementById('envelope-wrap').style.display = '';
-  document.getElementById('showcase-placeholder').style.display = '';
-  document.getElementById('showcase-card-el').querySelectorAll('img').forEach(i=>i.remove());
-  setTimeout(async () => {
-    try {
-      const newCards = await getMetaFromFirebase('newCards') || [];
-      const seen = JSON.parse(localStorage.getItem(SEEN_KEY)||'[]');
-      const unseen = newCards.filter(id => !seen.includes(id) && db.cards.find(c=>c.id===id));
-      if (unseen.length > 0) showEnvelope(unseen[0], unseen.length);
-    } catch(e) {}
-  }, 500);
+  ENVELOPE_ANIM.newCards = [];
+  document.getElementById('showcase-gallery').innerHTML = '';
 }
 window.closeEnvelope = closeEnvelope;
 
-function openDetailFromShowcase() {
-  closeEnvelope();
-  setTimeout(() => { if (showcaseCardId) openDetail(showcaseCardId); }, 600);
-}
+function openDetailFromShowcase() { closeEnvelope(); }
 window.openDetailFromShowcase = openDetailFromShowcase;
 
 function spawnParticles() {
