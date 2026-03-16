@@ -103,35 +103,6 @@ select:focus { border-color:var(--gold); }
 /* LAYOUT */
 .layout { display:flex; min-height:calc(100vh - 130px); }
 
-/* SIDEBAR */
-.sidebar {
-  width:220px; min-width:220px;
-  border-right:1px solid var(--border);
-  padding:1.5rem 0;
-  background:rgba(10,10,12,0.6);
-  position:relative; z-index:2;
-  overflow-y:auto;
-}
-.sidebar-title {
-  font-family:'Cinzel',serif; font-size:0.65rem;
-  letter-spacing:0.25em; color:var(--text2); text-transform:uppercase;
-  padding:0 1.2rem 0.8rem; border-bottom:1px solid var(--border); margin-bottom:0.5rem;
-}
-.universe-item {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0.5rem 1.2rem; cursor:pointer;
-  transition:all 0.15s; font-size:0.9rem; color:var(--text2);
-  border-left:2px solid transparent;
-}
-.universe-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
-.universe-item.active { color:var(--gold); border-left-color:var(--gold); background:rgba(201,168,76,0.06); }
-.universe-count {
-  background:var(--bg3); border:1px solid var(--border);
-  border-radius:10px; padding:1px 7px;
-  font-size:0.72rem; color:var(--text2); font-family:'Cinzel',serif;
-}
-.universe-item.active .universe-count { background:rgba(201,168,76,0.15); border-color:var(--gold); color:var(--gold); }
-
 /* MAIN */
 .main-content { flex:1; padding:1.5rem 2rem; position:relative; z-index:2; }
 .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
@@ -828,15 +799,6 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
 
 <!-- LAYOUT -->
 <div class="layout">
-  <nav class="sidebar">
-    <div class="sidebar-title">Universos</div>
-    <div id="universe-list">
-      <div class="universe-item active" onclick="filterByUniverse('')">
-        Todas las cartas
-        <span class="universe-count" id="all-count">0</span>
-      </div>
-    </div>
-  </nav>
   <main class="main-content">
     <div class="section-header">
       <div>
@@ -1326,7 +1288,7 @@ function getFilteredCards() {
   return cards;
 }
 
-function renderAll() { renderStats(); renderSidebar(); renderGrid(); updateUniverseFilter(); }
+function renderAll() { renderStats(); renderGrid(); updateUniverseFilter(); }
 window.renderAll = renderAll;
 
 function renderStats() {
@@ -1442,9 +1404,6 @@ function openDetail(id) {
         </div>
         ${card.notes?`<div class="detail-notes">${card.notes}</div>`:''}
         <div class="detail-actions">
-          <button class="btn btn-outline" onclick="detailNav(-1)">◀</button>
-          <span style="font-size:0.75rem;color:var(--text2);padding:0 0.3rem;" id="detail-nav-counter"></span>
-          <button class="btn btn-outline" onclick="detailNav(1)">▶</button>
           <button class="btn btn-outline" onclick="shareCard('${id}')" title="Compartir">🔗 Compartir</button>
           <div class="admin-detail-actions">
             <button class="btn" onclick="editCard('${id}')">✏️ Editar</button>
@@ -1700,15 +1659,7 @@ let currentDetailCards = [];
 let currentDetailIdx = 0;
 
 function openDetailWithNav(id) {
-  currentDetailCards = getFilteredCards();
-  currentDetailIdx = currentDetailCards.findIndex(c=>c.id===id);
-  if (currentDetailIdx === -1) currentDetailIdx = 0;
   openDetail(id);
-  // Set counter after render
-  setTimeout(() => {
-    const counter = document.getElementById('detail-nav-counter');
-    if (counter) counter.textContent = `${currentDetailIdx+1}/${currentDetailCards.length}`;
-  }, 50);
 }
 window.openDetailWithNav = openDetailWithNav;
 
