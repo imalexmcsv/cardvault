@@ -1064,27 +1064,33 @@ let firebaseReady = false;
 async function loadCardsFromFirebase() {
   try {
     showLoadingState(true);
-    const snap = await getDocs(collection(firestoreDb, CARDS_COLLECTION));
+
+    // Timeout de 8 segundos — si Firebase no responde, usa datos locales
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Firebase timeout')), 8000)
+    );
+    const fetchPromise = getDocs(collection(firestoreDb, CARDS_COLLECTION));
+    const snap = await Promise.race([fetchPromise, timeoutPromise]);
+
     db.cards = [];
     snap.forEach(docSnap => {
       db.cards.push({ id: docSnap.id, ...docSnap.data() });
     });
-    // Sort by createdAt
     db.cards.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
     firebaseReady = true;
     showLoadingState(false);
     renderAll();
-    // Check for new cards for visitors
     checkForNewCards();
   } catch(e) {
     console.error('Firebase load error:', e);
     showLoadingState(false);
-    showToast('Error al cargar desde Firebase. Usando datos locales.', true);
-    // Fallback to localStorage
-    try {
-      const local = localStorage.getItem('cardvault_v2');
-      if (local) db = JSON.parse(local);
-    } catch(err) {}
+    if (e.message === 'Firebase timeout') {
+      showToast('⚠️ Firebase tardó demasiado. Recarga la página.', true);
+    } else {
+      showToast('Error de conexión con Firebase', true);
+    }
+    // Mostrar colección vacía en vez de quedarse cargando
+    db = { cards: [] };
     renderAll();
   }
 }
@@ -1292,27 +1298,17 @@ function renderAll() { renderStats(); renderGrid(); updateUniverseFilter(); }
 window.renderAll = renderAll;
 
 function renderStats() {
-  document.getElementById('total-cards').textContent=db.cards.length;
-  const u=new Set(db.cards.map(c=>c.universe));
-  document.getElementById('total-universes').textContent=u.size;
-  document.getElementById('with-reverse').textContent=db.cards.filter(c=>c.backImg).length;
-  document.getElementById('all-count').textContent=db.cards.length;
+  const tc = document.getElementById('total-cards');
+  const tu = document.getElementById('total-universes');
+  const wr = document.getElementById('with-reverse');
+  if (tc) tc.textContent = db.cards.length;
+  const u = new Set(db.cards.map(c=>c.universe));
+  if (tu) tu.textContent = u.size;
+  if (wr) wr.textContent = db.cards.filter(c=>c.backImg).length;
 }
 
 function renderSidebar() {
-  const map={};
-  db.cards.forEach(c=>{ map[c.universe]=(map[c.universe]||0)+1; });
-  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
-  const list=document.getElementById('universe-list');
-  list.innerHTML=`<div class="universe-item ${!activeUniverse?'active':''}" data-universe="">Todas las cartas<span class="universe-count">${db.cards.length}</span></div>`
-    +sorted.map(([u,c])=>`<div class="universe-item ${activeUniverse===u?'active':''}" data-universe="${u.replace(/"/g,'&quot;')}"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;" title="${u}">${u}</span><span class="universe-count">${c}</span></div>`).join('');
-
-  // Attach click events via JS — no inline onclick
-  list.querySelectorAll('.universe-item').forEach(el => {
-    el.addEventListener('click', () => {
-      filterByUniverse(el.dataset.universe);
-    });
-  });
+  // Sidebar eliminado — función vacía para compatibilidad
 }
 
 function updateUniverseFilter() {
