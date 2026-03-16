@@ -1442,8 +1442,9 @@ function openDetail(id) {
         </div>
         ${card.notes?`<div class="detail-notes">${card.notes}</div>`:''}
         <div class="detail-actions">
-          <button class="btn btn-outline" onclick="detailNav(-1)" title="Carta anterior">◀</button>
-          <button class="btn btn-outline" onclick="detailNav(1)" title="Carta siguiente">▶</button>
+          <button class="btn btn-outline" onclick="detailNav(-1)">◀</button>
+          <span style="font-size:0.75rem;color:var(--text2);padding:0 0.3rem;" id="detail-nav-counter"></span>
+          <button class="btn btn-outline" onclick="detailNav(1)">▶</button>
           <button class="btn btn-outline" onclick="shareCard('${id}')" title="Compartir">🔗 Compartir</button>
           <div class="admin-detail-actions">
             <button class="btn" onclick="editCard('${id}')">✏️ Editar</button>
@@ -1701,16 +1702,62 @@ let currentDetailIdx = 0;
 function openDetailWithNav(id) {
   currentDetailCards = getFilteredCards();
   currentDetailIdx = currentDetailCards.findIndex(c=>c.id===id);
+  if (currentDetailIdx === -1) currentDetailIdx = 0;
   openDetail(id);
+  // Set counter after render
+  setTimeout(() => {
+    const counter = document.getElementById('detail-nav-counter');
+    if (counter) counter.textContent = `${currentDetailIdx+1}/${currentDetailCards.length}`;
+  }, 50);
 }
 window.openDetailWithNav = openDetailWithNav;
 
 function detailNav(dir) {
-  currentDetailIdx += dir;
-  if (currentDetailIdx < 0) currentDetailIdx = currentDetailCards.length-1;
-  if (currentDetailIdx >= currentDetailCards.length) currentDetailIdx = 0;
+  if (currentDetailCards.length === 0) return;
+  currentDetailIdx = (currentDetailIdx + dir + currentDetailCards.length) % currentDetailCards.length;
   const card = currentDetailCards[currentDetailIdx];
-  if (card) openDetail(card.id);
+  if (!card) return;
+  // Reset flip state for new card
+  flippedCards.delete(card.id);
+  // Re-render detail content without closing modal
+  const isFlipped = false;
+  const imgSection = card.frontImg||card.backImg
+    ?`<div class="card-flip-container" id="flip-container-${card.id}">
+        <div class="card-flip-inner">
+          <div class="card-face">${card.frontImg?`<img src="${card.frontImg}" alt="${card.name}">`:`<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:3rem;">🎴</div>`}</div>
+          <div class="card-face card-face-back">${card.backImg?`<img src="${card.backImg}" alt="Reverso" style="width:100%;height:100%;object-fit:cover;">`:`<div style="text-align:center;padding:1rem;"><div style="font-size:2rem;">🔄</div><div style="font-size:0.8rem;color:var(--text2);">Sin reverso</div></div>`}</div>
+        </div>
+      </div>
+      ${card.backImg?`<button class="btn flip-btn" onclick="toggleFlip('${card.id}')">🔄 Ver reverso</button>`:''}`
+    :`<div class="card-detail-img-placeholder">🎴</div>`;
+  const created = new Date(card.createdAt).toLocaleDateString('es-ES');
+  document.getElementById('detail-content').innerHTML=`
+    <div class="card-detail-content">
+      <div class="card-detail-images">${imgSection}</div>
+      <div class="card-detail-info">
+        <div class="detail-name">${card.name}</div>
+        <div class="detail-universe">📁 ${card.universe}</div>
+        <div class="detail-meta">
+          ${card.number?`<div class="meta-item"><div class="meta-label">Número</div><div class="meta-value">#${String(card.number).padStart(3,'0')}</div></div>`:''}
+          ${card.rarity?`<div class="meta-item"><div class="meta-label">Tipo / Edición</div><div class="meta-value">${card.rarity}</div></div>`:''}
+          <div class="meta-item"><div class="meta-label">Añadida</div><div class="meta-value">${created}</div></div>
+          <div class="meta-item"><div class="meta-label">Reverso</div><div class="meta-value">${card.backImg?'✅ Sí':'❌ No'}</div></div>
+        </div>
+        ${card.notes?`<div class="detail-notes">${card.notes}</div>`:''}
+        <div class="detail-actions">
+          <button class="btn btn-outline" onclick="detailNav(-1)">◀</button>
+          <span style="font-size:0.75rem;color:var(--text2);padding:0 0.3rem;">${currentDetailIdx+1}/${currentDetailCards.length}</span>
+          <button class="btn btn-outline" onclick="detailNav(1)">▶</button>
+          <button class="btn btn-outline" onclick="shareCard('${card.id}')">🔗 Compartir</button>
+          <div class="admin-detail-actions">
+            <button class="btn" onclick="editCard('${card.id}')">✏️ Editar</button>
+            <button class="btn btn-red" onclick="deleteCard('${card.id}')">🗑 Eliminar</button>
+          </div>
+          <button class="btn btn-outline" onclick="closeModal('detail-modal')">Cerrar</button>
+        </div>
+      </div>
+    </div>`;
+  playCardClick();
 }
 window.detailNav = detailNav;
 const ENVELOPE_ANIM = { phase:'idle', newCards:[] };
@@ -1896,7 +1943,11 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 function filterCards() { renderGrid(); }
 window.filterCards = filterCards;
 
-function filterByUniverse(u) { activeUniverse=u; document.getElementById('universe-filter').value=''; renderAll(); }
+function filterByUniverse(u) {
+  activeUniverse = u;
+  document.getElementById('universe-filter').value = '';
+  renderAll();
+}
 window.filterByUniverse = filterByUniverse;
 
 function setView(v) {
