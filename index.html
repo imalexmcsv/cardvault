@@ -2011,19 +2011,16 @@ window.logoutAdmin = logoutAdmin;
 // ============================================================
 // MUSIC PLAYER
 // ============================================================
+// URL pública de la música — cargada desde GitHub para todos los visitantes
+const PUBLIC_MUSIC_URL = 'https://imalexmcsv.github.io/cardvault/Vault_Menu.mp3';
+
 let musicAudio=null, musicMuted=false, musicPlayerCollapsed=false, musicIsPlaying=false;
 
 function initMusic() {
-  try {
-    const saved=localStorage.getItem(MUSIC_KEY);
-    if (!saved) return;
-    const data=JSON.parse(saved);
-    if (data&&data.src) {
-      document.getElementById('music-title').textContent=data.name||'Card Vault OST';
-      document.getElementById('music-subtitle').textContent='Pulsa ▶ para reproducir';
-      createAudio(data.src);
-    }
-  } catch(e) {}
+  // Siempre carga desde la URL pública — funciona para todos los visitantes
+  document.getElementById('music-title').textContent = 'Vault Menu OST';
+  document.getElementById('music-subtitle').textContent = 'Pulsa ▶ para reproducir';
+  createAudio(PUBLIC_MUSIC_URL);
 }
 
 function createAudio(src) {
@@ -2047,19 +2044,8 @@ window.togglePlayMusic = togglePlayMusic;
 
 function loadMusicFile(input) {
   if (!input.files[0]) return;
-  const file=input.files[0];
-  document.getElementById('music-subtitle').textContent='Cargando...';
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const src=e.target.result;
-    const name=file.name.replace(/\.[^.]+$/,'');
-    try { localStorage.setItem(MUSIC_KEY,JSON.stringify({src,name})); }
-    catch(err) { showToast('Archivo muy grande — usa MP3 de menos de 5MB',true); return; }
-    document.getElementById('music-title').textContent=name;
-    document.getElementById('music-subtitle').textContent='Listo — pulsa ▶';
-    createAudio(src); showToast('✅ Música cargada');
-  };
-  reader.readAsDataURL(file); input.value='';
+  showToast('Para cambiar la música sube el MP3 a GitHub y actualiza PUBLIC_MUSIC_URL en el código', true);
+  input.value = '';
 }
 window.loadMusicFile = loadMusicFile;
 
