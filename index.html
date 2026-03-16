@@ -646,6 +646,138 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
   .showcase-card { width:200px; }
   .showcase-name { font-size:1.3rem; }
 }
+
+/* ============================================================
+   NUEVAS FUNCIONES
+   ============================================================ */
+
+/* FAVORITOS */
+.card-item .fav-btn {
+  position:absolute; top:6px; left:6px;
+  width:26px; height:26px; border-radius:5px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(0,0,0,0.7); color:rgba(255,255,255,0.4);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:0.8rem; transition:all 0.15s;
+  backdrop-filter:blur(4px); z-index:10;
+  opacity:0;
+}
+.card-item:hover .fav-btn { opacity:1; }
+.card-item .fav-btn.active { color:#f4c430; opacity:1; border-color:rgba(244,196,48,0.5); background:rgba(0,0,0,0.8); }
+.cards-grid.list-view .card-item .fav-btn { opacity:1; position:static; width:22px; height:22px; }
+
+/* CONTADOR DE VISITAS */
+.visit-counter {
+  display:flex; align-items:center; gap:0.4rem;
+  font-size:0.75rem; color:var(--text2);
+  padding:0.3rem 0.7rem;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:20px;
+}
+.visit-counter span { color:var(--gold); font-family:'Cinzel',serif; font-size:0.8rem; }
+
+/* BOTONES EXTRA CONTROLS */
+.controls-extra {
+  display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;
+  padding:0.7rem 2.5rem;
+  border-bottom:1px solid var(--border);
+  background:rgba(17,17,24,0.6);
+}
+.filter-chip {
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:20px; padding:0.3rem 0.8rem;
+  font-size:0.8rem; color:var(--text2);
+  cursor:pointer; transition:all 0.2s; white-space:nowrap;
+}
+.filter-chip:hover { border-color:var(--gold); color:var(--gold); }
+.filter-chip.active { background:rgba(201,168,76,0.15); border-color:var(--gold); color:var(--gold); }
+
+/* STATS MODAL */
+.stats-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+  gap:1rem; margin-bottom:1.5rem;
+}
+.stat-card {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:10px; padding:1rem; text-align:center;
+}
+.stat-card-num {
+  font-family:'Cinzel',serif; font-size:2rem; color:var(--gold);
+  font-weight:700; display:block;
+}
+.stat-card-label { font-size:0.75rem; color:var(--text2); letter-spacing:0.1em; }
+.universe-bar-list { display:flex; flex-direction:column; gap:0.5rem; max-height:300px; overflow-y:auto; }
+.universe-bar-item { display:flex; align-items:center; gap:0.8rem; }
+.universe-bar-name { font-size:0.85rem; color:var(--text); min-width:120px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.universe-bar-track { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.universe-bar-fill { height:100%; background:linear-gradient(90deg, var(--gold), var(--gold2)); border-radius:3px; transition:width 0.8s ease; }
+.universe-bar-count { font-size:0.75rem; color:var(--text2); min-width:24px; text-align:right; font-family:'Cinzel',serif; }
+
+/* SLIDESHOW / PRESENTACIÓN */
+.slideshow-overlay {
+  position:fixed; inset:0; z-index:400;
+  background:#000;
+  display:none; align-items:center; justify-content:center;
+  flex-direction:column;
+}
+.slideshow-overlay.open { display:flex; }
+.slideshow-card-wrap {
+  position:relative;
+  animation:slideIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes slideIn {
+  from { opacity:0; transform:scale(0.7) translateY(40px); }
+  to { opacity:1; transform:scale(1) translateY(0); }
+}
+.slideshow-card {
+  width:min(320px, 70vw); aspect-ratio:2/3;
+  border-radius:16px; overflow:hidden;
+  border:2px solid var(--gold);
+  box-shadow:0 0 80px rgba(201,168,76,0.4), 0 30px 80px rgba(0,0,0,0.9);
+  position:relative;
+}
+.slideshow-card img { width:100%; height:100%; object-fit:cover; }
+.slideshow-card-placeholder { width:100%; height:100%; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:5rem; }
+.slideshow-shine {
+  position:absolute; inset:0; border-radius:16px;
+  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+  animation:shineMove 3s ease-in-out infinite; pointer-events:none;
+}
+@keyframes shineMove { 0%{transform:translateX(-100%) skewX(-15deg);} 100%{transform:translateX(200%) skewX(-15deg);} }
+.slideshow-info {
+  text-align:center; margin-top:1.5rem; padding:0 1rem;
+  animation:slideIn 0.6s 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.slideshow-name { font-family:'Cinzel',serif; font-size:1.8rem; color:var(--gold); font-weight:900; }
+.slideshow-universe { font-size:1rem; color:var(--text2); margin-top:0.3rem; }
+.slideshow-counter { font-size:0.75rem; color:var(--text2); margin-top:0.5rem; font-family:'Cinzel',serif; letter-spacing:0.2em; }
+.slideshow-controls {
+  position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+  display:flex; gap:1rem; align-items:center;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(10px);
+  padding:0.8rem 1.5rem; border-radius:40px;
+  border:1px solid var(--border2);
+}
+.slideshow-btn {
+  background:none; border:1px solid var(--border2);
+  border-radius:8px; padding:0.5rem 1rem;
+  color:var(--text); cursor:pointer; font-family:'Rajdhani',sans-serif;
+  font-size:0.9rem; transition:all 0.2s;
+}
+.slideshow-btn:hover { border-color:var(--gold); color:var(--gold); }
+.slideshow-btn.play-pause { background:var(--gold); color:#1a1200; border-color:var(--gold); font-weight:700; padding:0.5rem 1.2rem; }
+.slideshow-progress {
+  position:fixed; bottom:0; left:0; height:3px;
+  background:var(--gold); transition:width linear; opacity:0.7;
+}
+.slideshow-exit {
+  position:fixed; top:1.5rem; right:1.5rem;
+  background:rgba(0,0,0,0.7); border:1px solid var(--border2);
+  border-radius:8px; padding:0.5rem 1rem;
+  color:var(--text2); cursor:pointer; font-size:0.9rem;
+  backdrop-filter:blur(10px); transition:all 0.2s;
+}
+.slideshow-exit:hover { border-color:var(--red); color:var(--red); }
 </style>
 </head>
 <body>
@@ -657,6 +789,9 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
     <div class="stat"><span class="stat-num" id="total-cards">0</span><span class="stat-label">Cartas</span></div>
     <div class="stat"><span class="stat-num" id="total-universes">0</span><span class="stat-label">Universos</span></div>
     <div class="stat"><span class="stat-num" id="with-reverse">0</span><span class="stat-label">Con reverso</span></div>
+    <div class="visit-counter" title="Visitas totales">👁 <span id="visit-count">0</span></div>
+    <button class="btn btn-outline" onclick="openStatsModal()" title="Estadísticas" style="padding:0.6rem 0.8rem;">📊</button>
+    <button class="btn btn-outline" onclick="startSlideshow()" title="Presentación" style="padding:0.6rem 0.8rem;">▶</button>
     <button class="btn admin-only" onclick="openAddModal()">+ Añadir carta</button>
     <button class="btn btn-outline admin-only" onclick="openImportModal()">Importar</button>
     <button class="btn btn-outline" id="admin-lock-btn" onclick="toggleAdminPanel()" title="Administrador" style="padding:0.6rem 0.8rem;font-size:1rem;">🔒</button>
@@ -680,6 +815,15 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
     <button class="view-btn" id="list-btn" onclick="setView('list')" title="Lista">≡</button>
   </div>
   <button class="btn btn-outline admin-only" onclick="exportCollection()" style="font-size:0.8rem;">Exportar JSON</button>
+</div>
+
+<!-- FILTER CHIPS -->
+<div class="controls-extra">
+  <span style="font-size:0.75rem;color:var(--text2);letter-spacing:0.1em;">FILTRAR:</span>
+  <div class="filter-chip" id="chip-all" onclick="setChipFilter('all')" style="border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.1);">Todas</div>
+  <div class="filter-chip" id="chip-fav" onclick="setChipFilter('fav')">⭐ Favoritas</div>
+  <div class="filter-chip" id="chip-reverse" onclick="setChipFilter('reverse')">↕ Con reverso</div>
+  <div class="filter-chip" id="chip-noreverse" onclick="setChipFilter('noreverse')">Sin reverso</div>
 </div>
 
 <!-- LAYOUT -->
@@ -815,6 +959,40 @@ body.is-admin #admin-lock-btn { animation:unlockPulse 2s infinite; }
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- MODAL ESTADÍSTICAS -->
+<div class="modal-overlay" id="stats-modal">
+  <div class="modal" style="max-width:700px;">
+    <button class="modal-close" onclick="closeModal('stats-modal')">✕</button>
+    <div class="modal-header">
+      <div class="modal-title">📊 Estadísticas de la colección</div>
+      <div class="modal-subtitle">Resumen completo de tu Card Vault</div>
+    </div>
+    <div class="modal-body" id="stats-content"></div>
+  </div>
+</div>
+
+<!-- SLIDESHOW OVERLAY -->
+<div class="slideshow-overlay" id="slideshow-overlay">
+  <button class="slideshow-exit" onclick="stopSlideshow()">✕ Salir</button>
+  <div class="slideshow-progress" id="slideshow-progress" style="width:0%"></div>
+  <div id="slideshow-card-wrap" class="slideshow-card-wrap">
+    <div class="slideshow-card" id="slideshow-card">
+      <div class="slideshow-card-placeholder" id="slideshow-placeholder">🎴</div>
+      <div class="slideshow-shine"></div>
+    </div>
+  </div>
+  <div class="slideshow-info">
+    <div class="slideshow-name" id="slideshow-name">—</div>
+    <div class="slideshow-universe" id="slideshow-universe">—</div>
+    <div class="slideshow-counter" id="slideshow-counter">1 / 1</div>
+  </div>
+  <div class="slideshow-controls">
+    <button class="slideshow-btn" onclick="slideshowPrev()">◀ Anterior</button>
+    <button class="slideshow-btn play-pause" id="slideshow-playpause" onclick="toggleSlideshow()">⏸ Pausar</button>
+    <button class="slideshow-btn" onclick="slideshowNext()">Siguiente ▶</button>
+  </div>
+</div>
 
 <!-- MUSIC PLAYER -->
 <div class="music-player" id="music-player">
@@ -1130,6 +1308,13 @@ function getFilteredCards() {
   if (activeUniverse) cards=cards.filter(c=>c.universe===activeUniverse);
   if (uFilter) cards=cards.filter(c=>c.universe===uFilter);
   if (search) cards=cards.filter(c=>c.name.toLowerCase().includes(search)||c.universe.toLowerCase().includes(search)||(c.notes||'').toLowerCase().includes(search));
+
+  // Chip filters
+  const favs = getFavs();
+  if (activeChip === 'fav') cards = cards.filter(c=>favs.includes(c.id));
+  else if (activeChip === 'reverse') cards = cards.filter(c=>c.backImg);
+  else if (activeChip === 'noreverse') cards = cards.filter(c=>!c.backImg);
+
   switch(sort) {
     case 'date-asc': cards.sort((a,b)=>a.createdAt-b.createdAt); break;
     case 'date-desc': cards.sort((a,b)=>b.createdAt-a.createdAt); break;
@@ -1185,20 +1370,24 @@ function renderGrid() {
 
 function renderCardItem(card) {
   const hasReverse=card.backImg?`<div class="has-reverse-badge" title="Tiene reverso">↕</div>`:'';
+  const favActive = isFav(card.id);
   if (currentView==='list') {
-    return `<div class="card-item" onclick="openDetail('${card.id}')" onmouseenter="playCardHover()">
+    return `<div class="card-item" onclick="openDetailWithNav('${card.id}')" onmouseenter="playCardHover()">
       <div class="card-img-wrapper">${card.frontImg?`<img class="card-img" src="${card.frontImg}" alt="${card.name}" loading="lazy">`:`<div class="card-placeholder"><span style="font-size:1rem;">🎴</span></div>`}</div>
+      <button class="fav-btn ${favActive?'active':''}" onclick="toggleFav('${card.id}',event)" title="Favorita">⭐</button>
       <div class="list-info"><div class="list-name">${card.name}</div><div class="list-universe">${card.universe}${card.number?` · #${card.number}`:''}${card.rarity?` · ${card.rarity}`:''}</div></div>
       <div class="list-actions">
         ${card.backImg?`<span style="font-size:0.7rem;color:var(--accent);padding:4px 8px;background:rgba(124,92,191,0.15);border-radius:4px;border:1px solid rgba(124,92,191,0.3);">Reverso ↕</span>`:''}
+        <button class="btn btn-outline" style="padding:0.3rem 0.7rem;font-size:0.75rem;" onclick="shareCard('${card.id}',event)" title="Compartir">🔗</button>
         <button class="btn btn-outline admin-inline" style="padding:0.3rem 0.7rem;font-size:0.75rem;" onclick="editCard('${card.id}',event)">Editar</button>
         <button class="btn btn-red admin-inline" style="padding:0.3rem 0.7rem;font-size:0.75rem;" onclick="deleteCard('${card.id}',event)">Borrar</button>
       </div>
     </div>`;
   }
-  return `<div class="card-item" onclick="openDetail('${card.id}')" onmouseenter="playCardHover()">
+  return `<div class="card-item" onclick="openDetailWithNav('${card.id}')" onmouseenter="playCardHover()">
     ${card.number?`<div class="card-number">#${String(card.number).padStart(3,'0')}</div>`:''}
     ${hasReverse}
+    <button class="fav-btn ${favActive?'active':''}" onclick="toggleFav('${card.id}',event)" title="${favActive?'Quitar de favoritas':'Añadir a favoritas'}">⭐</button>
     <div class="card-img-wrapper">
       ${card.frontImg?`<img class="card-img" src="${card.frontImg}" alt="${card.name}" loading="lazy">`:`<div class="card-placeholder"><span class="placeholder-icon">🎴</span><span style="font-size:0.65rem;color:var(--text2);text-align:center;padding:0 0.5rem;">${card.name}</span></div>`}
     </div>
@@ -1207,6 +1396,7 @@ function renderCardItem(card) {
       <div class="card-universe-overlay">${card.universe}</div>
     </div>
     <div class="card-actions">
+      <button class="card-action-btn" onclick="shareCard('${card.id}',event)" title="Compartir">🔗</button>
       <button class="card-action-btn admin-inline" onclick="editCard('${card.id}',event)" title="Editar">✏️</button>
       <button class="card-action-btn delete admin-inline" onclick="deleteCard('${card.id}',event)" title="Eliminar">🗑</button>
     </div>
@@ -1245,6 +1435,9 @@ function openDetail(id) {
         </div>
         ${card.notes?`<div class="detail-notes">${card.notes}</div>`:''}
         <div class="detail-actions">
+          <button class="btn btn-outline" onclick="detailNav(-1)" title="Carta anterior">◀</button>
+          <button class="btn btn-outline" onclick="detailNav(1)" title="Carta siguiente">▶</button>
+          <button class="btn btn-outline" onclick="shareCard('${id}')" title="Compartir">🔗 Compartir</button>
           <div class="admin-detail-actions">
             <button class="btn" onclick="editCard('${id}')">✏️ Editar</button>
             <button class="btn btn-red" onclick="deleteCard('${id}')">🗑 Eliminar</button>
@@ -1267,8 +1460,252 @@ function toggleFlip(id) {
 window.toggleFlip = toggleFlip;
 
 // ============================================================
-// ENVELOPE SYSTEM — Un sobre, todas las cartas nuevas
+// FAVORITES SYSTEM
 // ============================================================
+const FAVS_KEY = 'cardvault_favs';
+
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem(FAVS_KEY)||'[]'); } catch(e) { return []; }
+}
+function saveFavs(favs) {
+  try { localStorage.setItem(FAVS_KEY, JSON.stringify(favs)); } catch(e) {}
+}
+function toggleFav(id, e) {
+  if (e) e.stopPropagation();
+  const favs = getFavs();
+  const idx = favs.indexOf(id);
+  if (idx === -1) { favs.push(id); showToast('⭐ Añadida a favoritas'); }
+  else { favs.splice(idx,1); showToast('Eliminada de favoritas'); }
+  saveFavs(favs);
+  renderGrid();
+}
+window.toggleFav = toggleFav;
+
+function isFav(id) { return getFavs().includes(id); }
+
+// ============================================================
+// CHIP FILTERS
+// ============================================================
+let activeChip = 'all';
+
+function setChipFilter(chip) {
+  activeChip = chip;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  const el = document.getElementById(`chip-${chip}`);
+  if (el) el.classList.add('active');
+  // Special style for 'all'
+  document.getElementById('chip-all').style.cssText = chip==='all'
+    ? 'border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.1);'
+    : '';
+  renderGrid();
+}
+window.setChipFilter = setChipFilter;
+
+// ============================================================
+// VISIT COUNTER
+// ============================================================
+async function initVisitCounter() {
+  try {
+    const visits = await getMetaFromFirebase('visits') || 0;
+    const newCount = visits + 1;
+    await saveMetaToFirebase('visits', newCount);
+    document.getElementById('visit-count').textContent = newCount.toLocaleString();
+  } catch(e) {
+    document.getElementById('visit-count').textContent = '—';
+  }
+}
+
+// ============================================================
+// STATS MODAL
+// ============================================================
+function openStatsModal() {
+  const cards = db.cards;
+  const universeMap = {};
+  cards.forEach(c => { universeMap[c.universe]=(universeMap[c.universe]||0)+1; });
+  const sortedUniverses = Object.entries(universeMap).sort((a,b)=>b[1]-a[1]);
+  const maxCount = sortedUniverses[0]?.[1] || 1;
+  const favs = getFavs();
+  const withReverse = cards.filter(c=>c.backImg).length;
+  const newest = cards.length ? new Date(Math.max(...cards.map(c=>c.createdAt||0))).toLocaleDateString('es-ES') : '—';
+
+  document.getElementById('stats-content').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-card-num">${cards.length}</span><span class="stat-card-label">CARTAS TOTALES</span></div>
+      <div class="stat-card"><span class="stat-card-num">${Object.keys(universeMap).length}</span><span class="stat-card-label">UNIVERSOS</span></div>
+      <div class="stat-card"><span class="stat-card-num">${withReverse}</span><span class="stat-card-label">CON REVERSO</span></div>
+      <div class="stat-card"><span class="stat-card-num">${cards.length-withReverse}</span><span class="stat-card-label">SIN REVERSO</span></div>
+      <div class="stat-card"><span class="stat-card-num">${favs.length}</span><span class="stat-card-label">FAVORITAS</span></div>
+      <div class="stat-card"><span class="stat-card-num" style="font-size:1rem;">${newest}</span><span class="stat-card-label">ÚLTIMA AÑADIDA</span></div>
+    </div>
+    <div style="margin-bottom:0.8rem;">
+      <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);letter-spacing:0.15em;margin-bottom:0.8rem;">TOP UNIVERSOS</div>
+      <div class="universe-bar-list">
+        ${sortedUniverses.slice(0,15).map(([u,c])=>`
+          <div class="universe-bar-item">
+            <div class="universe-bar-name" title="${u}">${u}</div>
+            <div class="universe-bar-track"><div class="universe-bar-fill" style="width:${Math.round(c/maxCount*100)}%"></div></div>
+            <div class="universe-bar-count">${c}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  openModal('stats-modal');
+}
+window.openStatsModal = openStatsModal;
+
+// ============================================================
+// SLIDESHOW
+// ============================================================
+let slideshowCards = [];
+let slideshowIndex = 0;
+let slideshowPlaying = true;
+let slideshowTimer = null;
+let slideshowInterval = 4000;
+
+function startSlideshow() {
+  const cards = getFilteredCards();
+  if (cards.length === 0) { showToast('No hay cartas para mostrar', true); return; }
+  slideshowCards = cards;
+  slideshowIndex = 0;
+  slideshowPlaying = true;
+  document.getElementById('slideshow-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderSlideshowCard();
+  scheduleSlideshowNext();
+}
+window.startSlideshow = startSlideshow;
+
+function renderSlideshowCard() {
+  const card = slideshowCards[slideshowIndex];
+  if (!card) return;
+
+  // Rebuild card element with animation
+  const wrap = document.getElementById('slideshow-card-wrap');
+  wrap.style.animation = 'none';
+  wrap.offsetHeight; // reflow
+  wrap.style.animation = '';
+
+  const cardEl = document.getElementById('slideshow-card');
+  // Clear previous image
+  const prevImg = cardEl.querySelector('img');
+  if (prevImg) prevImg.remove();
+  document.getElementById('slideshow-placeholder').style.display = card.frontImg ? 'none' : 'flex';
+
+  if (card.frontImg) {
+    const img = document.createElement('img');
+    img.src = card.frontImg;
+    img.alt = card.name;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+    cardEl.insertBefore(img, cardEl.querySelector('.slideshow-shine'));
+  }
+
+  document.getElementById('slideshow-name').textContent = card.name;
+  document.getElementById('slideshow-universe').textContent = card.universe;
+  document.getElementById('slideshow-counter').textContent = `${slideshowIndex+1} / ${slideshowCards.length}`;
+
+  // Progress bar
+  const prog = document.getElementById('slideshow-progress');
+  prog.style.transition = 'none';
+  prog.style.width = '0%';
+  if (slideshowPlaying) {
+    setTimeout(() => {
+      prog.style.transition = `width ${slideshowInterval}ms linear`;
+      prog.style.width = '100%';
+    }, 50);
+  }
+}
+
+function scheduleSlideshowNext() {
+  clearTimeout(slideshowTimer);
+  if (slideshowPlaying) {
+    slideshowTimer = setTimeout(() => slideshowNext(), slideshowInterval);
+  }
+}
+
+function slideshowNext() {
+  slideshowIndex = (slideshowIndex+1) % slideshowCards.length;
+  renderSlideshowCard();
+  scheduleSlideshowNext();
+}
+window.slideshowNext = slideshowNext;
+
+function slideshowPrev() {
+  slideshowIndex = (slideshowIndex-1+slideshowCards.length) % slideshowCards.length;
+  renderSlideshowCard();
+  scheduleSlideshowNext();
+}
+window.slideshowPrev = slideshowPrev;
+
+function toggleSlideshow() {
+  slideshowPlaying = !slideshowPlaying;
+  const btn = document.getElementById('slideshow-playpause');
+  btn.textContent = slideshowPlaying ? '⏸ Pausar' : '▶ Reproducir';
+  if (slideshowPlaying) {
+    scheduleSlideshowNext();
+    document.getElementById('slideshow-progress').style.transition = `width ${slideshowInterval}ms linear`;
+    document.getElementById('slideshow-progress').style.width = '100%';
+  } else {
+    clearTimeout(slideshowTimer);
+    document.getElementById('slideshow-progress').style.transition = 'none';
+  }
+}
+window.toggleSlideshow = toggleSlideshow;
+
+function stopSlideshow() {
+  clearTimeout(slideshowTimer);
+  document.getElementById('slideshow-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  slideshowPlaying = false;
+}
+window.stopSlideshow = stopSlideshow;
+
+// Keyboard navigation for slideshow
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('slideshow-overlay').classList.contains('open')) return;
+  if (e.key === 'ArrowRight') slideshowNext();
+  if (e.key === 'ArrowLeft') slideshowPrev();
+  if (e.key === ' ') { e.preventDefault(); toggleSlideshow(); }
+});
+
+// ============================================================
+// SHARE CARD
+// ============================================================
+function shareCard(id, e) {
+  if (e) e.stopPropagation();
+  const card = db.cards.find(c=>c.id===id);
+  if (!card) return;
+  const text = `🎴 ${card.name} — ${card.universe}\nCard Vault Collection\nhttps://imalexmcsv.github.io/cardvault`;
+  if (navigator.share) {
+    navigator.share({ title: card.name, text, url: 'https://imalexmcsv.github.io/cardvault' })
+      .catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>showToast('📋 Copiado al portapapeles')).catch(()=>{
+      showToast('No se pudo compartir', true);
+    });
+  }
+}
+window.shareCard = shareCard;
+
+// ============================================================
+// NAVIGATION ← → IN DETAIL MODAL
+// ============================================================
+let currentDetailCards = [];
+let currentDetailIdx = 0;
+
+function openDetailWithNav(id) {
+  currentDetailCards = getFilteredCards();
+  currentDetailIdx = currentDetailCards.findIndex(c=>c.id===id);
+  openDetail(id);
+}
+window.openDetailWithNav = openDetailWithNav;
+
+function detailNav(dir) {
+  currentDetailIdx += dir;
+  if (currentDetailIdx < 0) currentDetailIdx = currentDetailCards.length-1;
+  if (currentDetailIdx >= currentDetailCards.length) currentDetailIdx = 0;
+  const card = currentDetailCards[currentDetailIdx];
+  if (card) openDetail(card.id);
+}
+window.detailNav = detailNav;
 const ENVELOPE_ANIM = { phase:'idle', newCards:[] };
 
 async function markNewCardFirebase(cardId) {
@@ -1798,8 +2235,9 @@ window.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
   }, { once:true });
 
-  // Load from Firebase
+  // Load from Firebase + visit counter
   loadCardsFromFirebase();
+  initVisitCounter();
 });
 </script>
 </body>
